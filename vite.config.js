@@ -6,7 +6,7 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'https://genuine-front-gules.vercel.app', // رابط الخادم الخلفي
+                target: 'https://genuine-backend.vercel.app', // رابط الخادم الخلفي
                 changeOrigin: true, // تغيير الأصل للخادم الخلفي
                 rewrite: (path) => path.replace(/^\/api/, ''), // إزالة /api من الرابط
             },
