@@ -7,18 +7,18 @@ import { useAddProductMutation } from '../../../../redux/features/products/produ
 import { useNavigate } from 'react-router-dom';
 
 const categories = [
-    { label: 'أختر عنصر', value: '' },
-    { label: 'دشداشه', value: 'دشداشه' },
+    { label: 'الكل', value: 'الكل' },
+    { label: 'مصار', value: 'مصار' },
     { label: 'كمه', value: 'كمه' },
-];
-
-const colors = [
-    { label: 'اختر اللون', value: '' },
-    { label: 'أسود', value: 'أسود' },
-    { label: 'أحمر', value: 'أحمر' },
-    { label: 'ذهبي', value: 'ذهبي' },
-    { label: 'أزرق', value: 'أزرق' },
-    { label: 'أخضر', value: 'أخضر' }
+    { label: 'نظارات', value: 'نظارات' },
+    { label: 'ساعات', value: 'ساعات' },
+    { label: 'أقمشة', value: 'أقمشة' },
+    { label: 'خواتم', value: 'خواتم' },
+    { label: 'عطور', value: 'عطور' },
+    { label: 'أحذية', value: 'أحذية' },
+    { label: 'بوكسات الهدايا', value: 'بوكسات الهدايا' },
+    { label: 'عصي', value: 'عصي' },
+    { label: 'محافظ', value: 'محافظ' },
 ];
 
 const AddProduct = () => {
@@ -27,7 +27,6 @@ const AddProduct = () => {
     const [product, setProduct] = useState({
         name: '',
         category: '',
-        color: '',
         price: '',
         description: ''
     });
@@ -46,7 +45,7 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!product.name || !product.category || !product.price || !product.description || !product.color || image.length === 0) {
+        if (!product.name || !product.category || !product.price || !product.description || image.length === 0) {
             alert('Please fill all the required fields');
             return;
         }
@@ -57,7 +56,6 @@ const AddProduct = () => {
             setProduct({
                 name: '',
                 category: '',
-                color: '',
                 price: '',
                 description: ''
             });
@@ -85,13 +83,6 @@ const AddProduct = () => {
                     value={product.category}
                     onChange={handleChange}
                     options={categories}
-                />
-                <SelectInput
-                    label="Color"
-                    name="color"
-                    value={product.color}
-                    onChange={handleChange}
-                    options={colors}
                 />
                 <TextInput
                     label="Price"
