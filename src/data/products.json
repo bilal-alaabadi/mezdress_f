@@ -1,13 +1,12 @@
 [
     {
       "_id": 1,
-      "name": "Leather Handbag",
-      "category": "accessories",
-      "description": "Stylish leather handbag with ample storage space.",
+      "name": "ساعة",
+      "category": "ساعات",
+      "description": "ساعات",
       "price": 79.99,
       "oldPrice": 99.99,
-      "image": "https://baheej.om/wp-content/uploads/2020/03/2-2.jpg",
-      "color": "black",
+      "image": "../assets/4.jpeg",
       "rating": 4.5,
       "author":"admin"
     },
@@ -41,5 +40,19 @@
       "image": "https://m.media-amazon.com/images/I/41mkv5cNwJL._AC_SY1000_.jpg",
       "color": "red",
       "rating": 4.2
+    },
+    {
+      "id": 1,
+      "title": "ساعة",
+      "subtitle": "Timeless Elegance",
+      "date": "12th August 2022",
+      "imageUrl": "../assets/4.jpeg"
+    },
+    {
+      "id": 2,
+      "title": "Unveiling the Hottest Beachwear Trends",
+      "subtitle": "Summer Breeze",
+      "date": "18th January 2023",
+      "imageUrl": "../assets/7.jpeg"
     }
   ]
