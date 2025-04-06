@@ -49,7 +49,7 @@ const SingleProduct = () => {
 
     return (
         <>
-            <section className='section__container bg-[#eff6ff]'>
+            <section className='section__container bg-[#FAEBD7]'>
                 <h2 className='section__header capitalize'>صفحة المنتج الفردي</h2>
                 <div className='section__subheader space-x-2'>
                     <span className='hover:text-primary'><Link to="/">الرئيسية</Link></span>
@@ -100,22 +100,28 @@ const SingleProduct = () => {
 
                     <div className='md:w-1/2 w-full'>
                         <h3 className='text-2xl font-semibold mb-4'>{singleProduct.name}</h3>
-                        <p className='text-xl text-primary mb-4 space-x-1'>
-                            {singleProduct.price} ر.ع
+                        <p className='text-xl text-[#d3ae27] mb-4 space-x-1'>
+                            {singleProduct.price} .ر.ع
                             {singleProduct.oldPrice && (
-                                <s className='ml-1'>ر.ع {singleProduct.oldPrice}</s>
+                                <s className='ml-1'>.ر.ع {singleProduct.oldPrice}</s>
                             )}
                         </p>
-                        <p className='text-gray-400 mb-4'>{singleProduct.description}</p>
+                        <p className="text-gray-500 mb-4 text-lg font-medium leading-relaxed">
+                            <span className="text-gray-800 font-bold block">:الوصف</span> 
+                            <span className="text-gray-600">{singleProduct.description}</span>
+                        </p>
+
 
                         {/* معلومات إضافية عن المنتج */}
                         <div className='flex flex-col space-y-2'>
-                            <p><strong>الفئة:</strong> {singleProduct.category}</p>
-                            <p><strong>اللون:</strong> {singleProduct.color}</p>
-                            <div className='flex gap-1 items-center'>
+                            <p className="text-gray-500 mb-4 text-lg font-medium leading-relaxed">
+    <span className="text-gray-800 font-bold block">:الفئة</span> 
+    <span className="text-gray-600">{singleProduct.category}</span>
+</p>
+                            {/* <div className='flex gap-1 items-center'>
                                 <strong>التقييم: </strong>
                                 <RatingStars rating={singleProduct.rating} />
-                            </div>
+                            </div> */}
                         </div>
 
                         <button
@@ -140,3 +146,10 @@ const SingleProduct = () => {
 };
 
 export default SingleProduct;
+
+
+// عنابي فاتح: #B22222
+// 🔹 عنابي متوسط: #800000
+// 🔹 عنابي غامق (خمري): #5E0B15
+// 🔹 عنابي بنفسجي: #702963
+// 🔹 عنابي مائل للبني: #6A1B1A

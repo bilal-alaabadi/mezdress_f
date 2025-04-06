@@ -12,22 +12,29 @@ const productsApi = createApi({
     fetchAllProducts: builder.query({
       query: ({
         category,
+        subCategory,
         color,
+        size,
         minPrice,
         maxPrice,
         page = 1,
         limit = 10,
       }) => {
-        const queryParams = new URLSearchParams({
-          category: category || "",
-          color: color || "",
-          minPrice: minPrice || 0,
-          maxPrice: maxPrice || "",
+        const params = {
+          ...(category && { category }),
+          ...(category === "مصار" && subCategory && { subCategory }),
+          ...(color && { color }),
+          ...(category === "كمه" && size && { size }),
+          ...(minPrice && { minPrice }),
+          ...(maxPrice && { maxPrice }),
           page: page.toString(),
           limit: limit.toString(),
-        }).toString();
+        };
 
-        return `/?${queryParams}`;
+        return {
+          url: "/",
+          params,
+        };
       },
       providesTags: ["Products"],
     }),
@@ -50,6 +57,7 @@ const productsApi = createApi({
     fetchRelatedProducts: builder.query({
       query: (id) => `/related/${id}`,
     }),
+
     updateProduct: builder.mutation({
       query: ({ id, ...rest }) => ({
         url: `update-product/${id}`,
@@ -68,9 +76,18 @@ const productsApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [{ type: "Products", id }],
     }),
+
+    // يمكن إضافة نقاط نهاية إضافية هنا
   }),
 });
 
-export const {useFetchAllProductsQuery, useFetchProductByIdQuery, useAddProductMutation, useUpdateProductMutation, useDeleteProductMutation, useFetchRelatedProductsQuery} = productsApi;
+export const {
+  useFetchAllProductsQuery,
+  useFetchProductByIdQuery,
+  useAddProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useFetchRelatedProductsQuery,
+} = productsApi;
 
 export default productsApi;

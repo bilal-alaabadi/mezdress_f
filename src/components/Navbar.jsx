@@ -6,6 +6,7 @@ import avatarImg from "../assets/avatar.png";
 import { useLogoutUserMutation } from '../redux/features/auth/authApi';
 import { logout } from '../redux/features/auth/authSlice';
 import log from "../assets/Black_White_Modern_Monogram_Initial_Name_Logo-removebg-preview.png"
+import mand from "../assets/mandala_19.jpg"
 const Navbar = () => {
     const products = useSelector((state) => state.cart.products);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -54,7 +55,7 @@ const Navbar = () => {
     };
 
     return (
-        <header className='fixed-nav-bar w-full bg-white '>
+        <header className='fixed-nav-bar w-full bg-white  '>
             <nav className='max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center relative'>
                 {/* Mobile Menu Button (Hamburger Icon) */}
                 <button
@@ -73,7 +74,7 @@ const Navbar = () => {
                     </li>
                     <li>
                         <Link to="/Shop" className='text-sm sm:text-base md:text-lg hover:text-primary transition-colors duration-300'>
-                            المتجر
+                            المنتجات
                         </Link>
                     </li>
                     <li>

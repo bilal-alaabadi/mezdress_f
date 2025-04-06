@@ -36,7 +36,7 @@ const ProductCards = ({ products }) => {
                                     e.stopPropagation();
                                     handleAddToCart(product);
                                 }}
-                                className="bg-primary p-1.5 text-white hover:bg-primary-dark rounded-full"
+                                className="bg-[#d3ae27] p-1.5 text-white hover:bg-black rounded-full transition duration-300"
                             >
                                 <i className="ri-shopping-cart-2-line"></i>
                             </button>
@@ -52,7 +52,7 @@ const ProductCards = ({ products }) => {
                                 <s className="text-gray-500 ml-2">ر.ع{product?.oldPrice}</s>
                             )}
                         </p>
-                        <RatingStars rating={product.rating} />
+                        {/* <RatingStars rating={product.rating} /> */}
                     </div>
                 </div>
             ))}
