@@ -36,7 +36,7 @@ const ProductCards = ({ products }) => {
                                     e.stopPropagation();
                                     handleAddToCart(product);
                                 }}
-                                className="bg-[#d3ae27] p-1.5 text-white hover:bg-black rounded-full transition duration-300"
+                                className="bg-[#CEAE7A] p-1.5 text-white hover:bg-black rounded-full transition duration-300"
                             >
                                 <i className="ri-shopping-cart-2-line"></i>
                             </button>
@@ -46,7 +46,7 @@ const ProductCards = ({ products }) => {
                     {/* product description */}
                     <div className='product__card__content text-center mt-4'>
                         <h4 className="text-lg font-semibold">{product.name}</h4>
-                        <p className="text-primary mt-2">
+                        <p className="text-[#CEAE7A] mt-2">
                             {product.price} ر.ع
                             {product?.oldPrice && (
                                 <s className="text-gray-500 ml-2">ر.ع{product?.oldPrice}</s>

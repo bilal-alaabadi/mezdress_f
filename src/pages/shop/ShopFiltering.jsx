@@ -164,7 +164,7 @@ const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters })
             <div className="mt-4">
                 <button
                     onClick={handleClearFilters}
-                    className='bg-primary py-2 px-4 text-white rounded hover:bg-primary-dark transition duration-300'
+                    className='bg-[#CEAE7A] py-2 px-4 text-white rounded hover:bg-primary-dark transition duration-300'
                 >
                     مسح الفلاتر
                 </button>

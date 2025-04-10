@@ -69,7 +69,7 @@ const PostAReview = ({isModalOpen, handleClose}) => {
                 className='px-4 py-2 bg-gray-300 rounded-md'>ألغي</button>
                 <button 
                 onClick={handleSubmit}
-                className='px-4 py-2 bg-primary text-white rounded-md'>سلم</button>
+                className='px-4 py-2 bg-text-[#d3ae27] text-white rounded-md'>سلم</button>
             </div>
         </div>
     </div>

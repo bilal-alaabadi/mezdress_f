@@ -5,11 +5,11 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { logout } from '../../redux/features/auth/authSlice';
 
 const navItems = [
-    { path: '/dashboard/admin', label: 'Dashboard' },
-    { path: '/dashboard/add-product', label: 'Add Product'  },
-    { path: '/dashboard/manage-products', label: 'Manage Products' },
-    { path: '/dashboard/users', label: 'Users'  },
-    { path: '/dashboard/manage-orders', label: 'Manage Orders'  },
+    { path: '/dashboard/admin', label: 'لوحة التحكم' },
+    { path: '/dashboard/add-product', label: 'أضافة منتج'  },
+    { path: '/dashboard/manage-products', label: 'تعديل المنتجات' },
+    { path: '/dashboard/users', label: 'المستخدمون'  },
+    // { path: '/dashboard/manage-orders', label: 'Manage Orders'  },
 ]
 const AdminDashboard = () => {
     const [logoutUser] = useLogoutUserMutation();

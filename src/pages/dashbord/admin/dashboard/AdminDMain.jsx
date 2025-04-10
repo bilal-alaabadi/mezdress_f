@@ -15,8 +15,8 @@ const AdminDMain = () => {
         <div>
             <h1 className='text-2xl font-semibold mb-4'>لوحة تحكم المشرف</h1>
             <p className='text-gray-500'>{user?.username}!مرحبًا بك في لوحة تحكم الإدارة.</p>
-            <AdminStats stats={stats}/>
-            <AdminStatsChart stats={stats}/>
+            {/* <AdminStats stats={stats}/> */}
+            {/* <AdminStatsChart stats={stats}/> */}
         </div>
     </div>
   )

@@ -30,10 +30,10 @@ const TrendingProducts = () => {
 
     return (
         <section className="section__container product__container" >
-            <h2 className="section__header text-3xl font-bold text-gray-800 mb-4">
-                المنتجات الجديده
+            <h2 className="section__header text-3xl font-bold text-[#CEAE7A] mb-4">
+                احدث المنتجات
             </h2>
-            <p className="section__subheader text-lg text-gray-600 mb-12" dir='rtl'>
+            <p className="section__subheader text-lg text-gray-900 mb-12" dir='rtl'>
                 اكتشف أحدث الصيحات: رفع مستوى أناقتك مع مجموعتنا المختارة من منتجات موضة الرجاليه الرائجة.
             </p>
 
@@ -61,13 +61,13 @@ const TrendingProducts = () => {
                             {/* Product Description */}
                             <div className="product__card__content text-center mt-4">
                                 <h4 className="text-lg font-semibold">{product.name}</h4>
-                                <p className="text-primary mt-2">
+                                <p className="text-[#CEAE7A] mt-2">
                                     {product.price}.ر.ع
                                     {product.oldPrice && (
                                         <s className="text-gray-500 ml-2">ر.ع{product.oldPrice}ر.ع</s>
                                     )}
                                 </p>
-                                <RatingStars rating={product.rating} />
+                                {/* <RatingStars rating={product.rating} /> */}
                             </div>
                         </div>
                     ))}
@@ -75,13 +75,16 @@ const TrendingProducts = () => {
             </div>
 
             {/* Load More Products Button */}
-            <div className="product__btn text-center mt-8" dir='rtl'>
-                {visibleProducts < products.length && (
-                    <button className="btn bg-primary text-white px-6 py-2 rounded-md" onClick={loadMoreProducts}>
-                        عرض المزيد
-                    </button>
-                )}
-            </div>
+            <div className="text-center mt-8" dir='rtl'>
+  {visibleProducts < products.length && (
+    <button
+      onClick={loadMoreProducts}
+      className="bg-[#CEAE7A] hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-full transition-all duration-300 shadow-md"
+    >
+      عرض المزيد
+    </button>
+  )}
+</div>
         </section>
     );
 };

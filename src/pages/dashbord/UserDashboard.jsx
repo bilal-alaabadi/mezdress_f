@@ -5,11 +5,11 @@ import { useDispatch } from 'react-redux'
 import { logout } from '../../redux/features/auth/authSlice'
 
 const navItems = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/dashboard/orders', label: 'Order'  },
-    { path: '/dashboard/payments', label: 'Payments' },
-    { path: '/dashboard/profile', label: 'Profile'  },
-    { path: '/dashboard/reviews', label: 'Reviews'  },
+    // { path: '/dashboard', label: 'Dashboard' },
+    // { path: '/dashboard/orders', label: 'Order'  },
+    // { path: '/dashboard/payments', label: 'Payments' },
+    // { path: '/dashboard/profile', label: 'Profile'  },
+    // { path: '/dashboard/reviews', label: 'Reviews'  },
 ]
 
 const UserDashboard = () => {
@@ -59,7 +59,7 @@ const UserDashboard = () => {
                 <hr  className='mb-3'/>
                 <button 
                 onClick={handleLogout}
-                className='text-white bg-primary font-medium px-5 py-1 rounded-sm'>Logout</button>
+                className='text-white bg-primary font-medium px-5 py-1 rounded-sm'>  تسجيل الخروج</button>
             </div>
         </div>
     )

@@ -49,13 +49,13 @@ const UserDMain = () => {
   return (
     <div className='p-6'>
         <div>
-            <h1 className='text-2xl font-semibold mb-4'>User Dashboard</h1>
-            <p className='text-gray-500'>Hi, {user?.username}! Welcome to your user dashboard</p>
+            <h1 className='text-2xl font-semibold mb-4'>لوحة تحكم المستخدم</h1>
+            <p className='text-gray-500'>{user?.username } أهلا بك </p>
         </div>
-        <UserStats stats={stats}/>
+        {/* <UserStats stats={stats}/>
         <div className='mb-6'>
             <Bar data={data} options={options}/>
-        </div>
+        </div> */}
     </div>
   )
 }

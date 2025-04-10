@@ -24,6 +24,7 @@
   max-width: var(--max-width-1400);
   margin: auto;
   padding: 5rem 1rem;
+
 }
 
 .section__header {
@@ -31,14 +32,14 @@
   font-size: 2rem;
   font-weight: 800;
   font-family: var(--header-font);
-  color: var(--text-dark);
+  /* color: var(--text-dark); */
   text-align: center;
 }
 
 .section__subheader {
   max-width: 500px;
   margin: auto;
-  color: var(--text-light);
+  /* color: var(--text-light); */
   text-align: center;
 }
 
@@ -270,13 +271,13 @@ nav {
 
 .product__card__content p {
   font-weight: 500;
-  color: var(--text-dark);
+  /* color: var(--text-dark); */
 }
 
 .product__card__content p s {
   font-size: 0.9rem;
   font-weight: 400;
-  color: var(--text-light);
+  /* color: var(--text-light); */
 }
 
 .product__btn {
