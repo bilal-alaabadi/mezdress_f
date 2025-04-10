@@ -6,6 +6,7 @@ import avatarImg from "../assets/avatar.png";
 import { useLogoutUserMutation } from '../redux/features/auth/authApi';
 import { logout } from '../redux/features/auth/authSlice';
 import logo from "../assets/option 5.png"
+
 const Navbar = () => {
     const products = useSelector((state) => state.cart.products);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -25,20 +26,21 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const handleMobileMenuToggle = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
+    // إغلاق القائمة المتنقلة عند النقر على رابط
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     // Admin dropdown menus
     const adminDropDownMenus = [
         { label: "لوحة التحكم", path: "/dashboard/admin" },
         { label: "تعديل المنتجات ", path: "/dashboard/manage-products" },
-        // { label: "جميع الطلبات", path: "/dashboard/manage-orders" },
         { label: "إضافة منتج", path: "/dashboard/add-product" },
     ];
 
     // User dropdown menus
     const userDropDownMenus = [
         { label: "لوحة التحكم", path: "/dashboard" },
-        // { label: "الملف الشخصي", path: "/dashboard/profile" },
-        // { label: "المدفوعات", path: "/dashboard/payments" },
-        // { label: "الطلبات", path: "/dashboard/orders" },
     ];
 
     const dropdownMenus = user?.role === 'admin' ? [...adminDropDownMenus] : [...userDropDownMenus];
@@ -76,31 +78,22 @@ const Navbar = () => {
                             المنتجات
                         </Link>
                     </li>
-                    <li>
-                        {/* <Link to="/search" className='text-sm sm:text-base md:text-lg hover:text-primary transition-colors duration-300'>
-                            بحث
-                        </Link> */}
-                    </li>
-
                 </ul>
 
                 {/* Logo (Centered) */}
                 <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-                <Link to="/" className="inline-block">
-                <img 
-                src={logo} 
-                alt="شعار رؤية" 
-                className="w-64 h-56 sm:w-60 sm:h-60 lg:w-72 lg:h-72 pt-2 pb-2"
-                loading="lazy" 
-                />
-
-                </Link>
+                    <Link to="/" className="inline-block">
+                        <img 
+                            src={logo} 
+                            alt="شعار رؤية" 
+                            className="w-72 h-56 sm:w-60 sm:h-60 lg:w-72 lg:h-72 pt-2 pb-2"
+                            loading="lazy" 
+                        />
+                    </Link>
                 </div>
-
 
                 {/* Nav Icons */}
                 <div className='flex items-center gap-4 sm:gap-6'>
-
                     <button onClick={handleCartToggle} className='relative hover:text-[#d3ae27] transition-colors duration-300'>
                         <i className="ri-shopping-bag-line text-lg"></i>
                         {products.length > 0 && (
@@ -155,21 +148,23 @@ const Navbar = () => {
                     <div className='sm:hidden absolute top-16 left-0 w-full bg-white shadow-md z-40'>
                         <ul className='flex flex-col gap-4 p-4'>
                             <li>
-                                <Link to="/" className='block text-sm hover:text-[#d3ae27] transition-colors duration-300'>
+                                <Link 
+                                    to="/" 
+                                    className='block text-sm hover:text-[#d3ae27] transition-colors duration-300'
+                                    onClick={closeMobileMenu} // إغلاق القائمة عند النقر
+                                >
                                     الرئيسية
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/shop" className='block text-sm hover:text-[#d3ae27] transition-colors duration-300'>
+                                <Link 
+                                    to="/shop" 
+                                    className='block text-sm hover:text-[#d3ae27] transition-colors duration-300'
+                                    onClick={closeMobileMenu} // إغلاق القائمة عند النقر
+                                >
                                     المتجر
                                 </Link>
                             </li>
-                            {/* <li>
-                                <Link to="/" className='block text-sm hover:text-[#d3ae27] transition-colors duration-300'>
-                                    الصفحات
-                                </Link>
-                            </li> */}
-
                         </ul>
                     </div>
                 )}
