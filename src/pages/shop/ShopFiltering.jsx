@@ -1,7 +1,6 @@
 import React from 'react';
 
 const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters }) => {
-    const sizes = ['9.5', '9.75', '10', '10.25', '10.5', '10.75', '11', '11.25', '11.5', '11.75'];
     
     const massarTypes = {
         smallPattern: {
@@ -23,6 +22,12 @@ const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters })
             ]
         }
     };
+    const kumaTypes = [
+        { label: 'كمه خياطة اليد', value: 'كمه خياطة اليد' },
+        { label: 'كمه ديواني', value: 'كمه ديواني' }
+    ];
+
+    const kumaSizes = ['9.5', '9.75', '10', '10.25', '10.5', '10.75', '11', '11.25', '11.5', '11.75'];
 
     const handleCategoryChange = (e) => {
         const newCategory = e.target.value;
@@ -31,14 +36,8 @@ const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters })
             category: newCategory,
             massarPatternType: '',
             massarSubType: '',
-            size: newCategory === 'كمه' ? filtersState.size : ''
-        });
-    };
-
-    const handleSizeChange = (e) => {
-        setFiltersState({
-            ...filtersState,
-            size: e.target.value
+            kumaType: '',
+            kumaSize: '',
         });
     };
 
@@ -58,13 +57,23 @@ const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters })
         });
     };
 
-    const handleClearFilters = () => {
+    const handleKumaTypeChange = (type) => {
         setFiltersState({
-            category: 'الكل',
-            massarPatternType: '',
-            massarSubType: '',
-            size: ''
+            ...filtersState,
+            kumaType: type,
+            kumaSize: ''
         });
+    };
+
+    const handleKumaSizeChange = (size) => {
+        setFiltersState({
+            ...filtersState,
+            kumaSize: size
+        });
+    };
+
+    const handleClearFilters = () => {
+        clearFilters();
     };
 
     return (
@@ -137,26 +146,48 @@ const ShopFiltering = ({ filters, filtersState, setFiltersState, clearFilters })
                 </div>
             )}
 
-            {/* المقاسات (تظهر فقط عند اختيار فئة كمه) */}
+            {/* أنواع الكمه */}
             {filtersState.category === 'كمه' && (
-                <div className='flex flex-col space-y-2'>
-                    <h4 className='font-medium text-lg'>المقاسات</h4>
-                    <hr />
-                    <div className="grid grid-cols-2 gap-2">
-                        {sizes.map((size) => (
-                            <label key={size} className='cursor-pointer flex items-center'>
-                                <input
-                                    type="radio"
-                                    name="productSize"
-                                    value={size}
-                                    checked={filtersState.size === size}
-                                    onChange={handleSizeChange}
-                                    className="mr-2"
-                                />
-                                <span>{size}</span>
-                            </label>
-                        ))}
+                <div className="space-y-4">
+                    <div>
+                        <h4 className='font-medium text-lg'>نوع الكمه</h4>
+                        <hr />
+                        <div className="grid grid-cols-1 gap-2 mt-2">
+                            {kumaTypes.map((type) => (
+                                <label key={type.value} className="flex items-center space-x-3 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="kumaType"
+                                        checked={filtersState.kumaType === type.value}
+                                        onChange={() => handleKumaTypeChange(type.value)}
+                                        className="mr-2"
+                                    />
+                                    <span>{type.label}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
+
+                    {filtersState.kumaType && (
+                        <div>
+                            <h4 className='font-medium text-lg'>مقاس الكمه</h4>
+                            <hr />
+                            <div className="grid grid-cols-3 gap-2 mt-2">
+                                {kumaSizes.map((size) => (
+                                    <label key={size} className="flex items-center space-x-3 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="kumaSize"
+                                            checked={filtersState.kumaSize === size}
+                                            onChange={() => handleKumaSizeChange(size)}
+                                            className="mr-2"
+                                        />
+                                        <span>{size}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

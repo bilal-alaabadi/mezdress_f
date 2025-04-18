@@ -21,18 +21,12 @@ const categories = [
     { label: 'محافظ', value: 'محافظ' },
 ];
 
-const sizes = [
-    { label: '9.5', value: '9.5' },
-    { label: '9.75', value: '9.75' },
-    { label: '10', value: '10' },
-    { label: '10.25', value: '10.25' },
-    { label: '10.5', value: '10.5' },
-    { label: '10.75', value: '10.75' },
-    { label: '11', value: '11' },
-    { label: '11.25', value: '11.25' },
-    { label: '11.5', value: '11.5' },
-    { label: '11.75', value: '11.75' }
+const kumaTypes = [
+    { label: 'كمه خياطة اليد', value: 'كمه خياطة اليد' },
+    { label: 'كمه ديواني', value: 'كمه ديواني' }
 ];
+
+const kumaSizes = ['9.5', '9.75', '10', '10.25', '10.5', '10.75', '11', '11.25', '11.5', '11.75'];
 
 const massarTypes = {
     smallPattern: {
@@ -60,9 +54,10 @@ const AddProduct = () => {
         category: '',
         massarPatternType: '',
         massarSubType: '',
+        kumaType: '',
+        kumaSize: '',
         price: '',
         description: '',
-        size: ''
     });
     const [image, setImage] = useState([]);
     const [AddProduct, { isLoading, error }] = useAddProductMutation();
@@ -75,7 +70,8 @@ const AddProduct = () => {
         if (name === 'category') {
             updates.massarPatternType = '';
             updates.massarSubType = '';
-            updates.size = '';
+            updates.kumaType = '';
+            updates.kumaSize = '';
         }
 
         if (name === 'massarPatternType') {
@@ -85,69 +81,95 @@ const AddProduct = () => {
         setProduct(updates);
     };
 
+    const handleKumaTypeChange = (type) => {
+        setProduct({
+            ...product,
+            kumaType: type,
+            kumaSize: ''
+        });
+    };
+
+    const handleKumaSizeChange = (size) => {
+        setProduct({
+            ...product,
+            kumaSize: size
+        });
+    };
+
+    const handleMassarPatternChange = (patternType) => {
+        setProduct({
+            ...product,
+            massarPatternType: patternType,
+            massarSubType: ''
+        });
+    };
+
+    const handleMassarSubTypeChange = (subType) => {
+        setProduct({
+            ...product,
+            massarSubType: subType
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+      
         const requiredFields = {
-            name: 'اسم المنتج',
-            category: 'الفئة',
-            price: 'السعر',
-            description: 'الوصف'
+          name: 'اسم المنتج',
+          category: 'الفئة',
+          price: 'السعر',
+          description: 'الوصف'
         };
-
+      
         const missingFields = Object.entries(requiredFields)
-            .filter(([key]) => !product[key])
-            .map(([_, label]) => label);
-
+          .filter(([key]) => !product[key])
+          .map(([_, label]) => label);
+      
         if (missingFields.length > 0 || image.length === 0) {
-            alert(`الرجاء تعبئة الحقول التالية: ${missingFields.join('، ')}${image.length === 0 ? ' وإضافة صورة' : ''}`);
-            return;
+          alert(`الرجاء تعبئة الحقول التالية: ${missingFields.join('، ')}${image.length === 0 ? ' وإضافة صورة' : ''}`);
+          return;
         }
-
-        if (product.category === 'كمه' && !product.size) {
-            alert('الرجاء اختيار مقاس لمنتجات كمه');
-            return;
+      
+        if (product.category === 'كمه' && !product.kumaType) {
+          alert('الرجاء اختيار نوع الكمه');
+          return;
         }
-
-        if (product.category === 'مصار' && (!product.massarPatternType || !product.massarSubType)) {
-            alert('الرجاء اختيار نوع النقشة والنوع الفرعي للمصار');
-            return;
-        }
-
+      
         try {
             const productData = {
                 name: product.name,
                 category: product.category,
                 ...(product.category === 'مصار' && { 
-                    subCategory: `${product.massarSubType}` // تم تعديل هذا الجزء
+                    subCategory: product.massarSubType
+                }),
+                ...(product.category === 'كمه' && { 
+                    subCategory: product.kumaSize ? `${product.kumaType}-${product.kumaSize}` : product.kumaType
                 }),
                 price: parseFloat(product.price),
                 description: product.description,
-                image: image, // تأكد أن image هي مصفوفة
-                author: user?._id,
-                ...(product.category === 'كمه' && { size: product.size })
+                image: image,
+                author: user?._id
             };
-
-            console.log('بيانات المنتج المرسلة:', productData);
-
-            const result = await AddProduct(productData).unwrap();
-            alert('تمت إضافة المنتج بنجاح');
-            setProduct({
-                name: '',
-                category: '',
-                massarPatternType: '',
-                massarSubType: '',
-                price: '',
-                description: '',
-                size: ''
-            });
-            setImage([]);
-            navigate("/shop");
+      
+          const result = await AddProduct(productData).unwrap();
+          alert('تمت إضافة المنتج بنجاح');
+          setProduct({
+            name: '',
+            category: '',
+            massarPatternType: '',
+            massarSubType: '',
+            kumaType: '',
+            kumaSize: '',
+            price: '',
+            description: ''
+          });
+          setImage([]);
+          navigate("/shop");
         } catch (error) {
-            console.error("فشل في إضافة المنتج:", error);
-            alert(`حدث خطأ: ${error.data?.message || 'فشل في إضافة المنتج'}`);
+          console.error("فشل في إضافة المنتج:", error);
+          alert(`حدث خطأ: ${error.data?.message || 'فشل في إضافة المنتج'}`);
         }
-    };
+      };
 
     return (
         <div className="container mx-auto mt-8 px-4">
@@ -185,7 +207,7 @@ const AddProduct = () => {
                                             name="massarPatternType"
                                             value={label}
                                             checked={product.massarPatternType === label}
-                                            onChange={handleChange}
+                                            onChange={() => handleMassarPatternChange(label)}
                                             className="h-5 w-5 text-indigo-600"
                                             required
                                         />
@@ -212,7 +234,7 @@ const AddProduct = () => {
                                                 name="massarSubType"
                                                 value={subType.value}
                                                 checked={product.massarSubType === subType.value}
-                                                onChange={handleChange}
+                                                onChange={() => handleMassarSubTypeChange(subType.value)}
                                                 className="h-5 w-5 text-indigo-600"
                                                 required
                                             />
@@ -228,25 +250,55 @@ const AddProduct = () => {
                 )}
                 
                 {product.category === 'كمه' && (
-                    <div className="mb-4">
-                        <label htmlFor="size" className="block text-sm font-medium text-gray-700 text-right">
-                            المقاس *
-                        </label>
-                        <select
-                            id="size"
-                            name="size"
-                            value={product.size}
-                            onChange={handleChange}
-                            className="mt-1 block w-full pr-3 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            required
-                        >
-                            <option value="">اختر مقاساً</option>
-                            {sizes.map((size) => (
-                                <option key={size.value} value={size.value}>
-                                    {size.label}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 text-right mb-2">
+                                نوع الكمه *
+                            </label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {kumaTypes.map((type) => (
+                                    <label key={type.value} className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
+                                        <input
+                                            type="radio"
+                                            name="kumaType"
+                                            value={type.value}
+                                            checked={product.kumaType === type.value}
+                                            onChange={() => handleKumaTypeChange(type.value)}
+                                            className="h-5 w-5 text-indigo-600"
+                                            required
+                                        />
+                                        <span className="block text-sm font-medium text-gray-700">
+                                            {type.label}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {product.kumaType && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 text-right mb-2">
+                                    مقاس الكمه
+                                </label>
+                                <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                                    {kumaSizes.map((size) => (
+                                        <label key={size} className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+                                            <input
+                                                type="radio"
+                                                name="kumaSize"
+                                                value={size}
+                                                checked={product.kumaSize === size}
+                                                onChange={() => handleKumaSizeChange(size)}
+                                                className="h-5 w-5 text-indigo-600"
+                                            />
+                                            <span className="block text-sm font-medium text-gray-700">
+                                                {size}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
                 
@@ -300,7 +352,3 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
-
-
-
-

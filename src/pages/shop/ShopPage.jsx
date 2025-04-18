@@ -5,18 +5,7 @@ import ShopFiltering from './ShopFiltering';
 import { useFetchAllProductsQuery } from '../../redux/features/products/productsApi';
 
 const filters = {
-    categories: ['الكل',
-         'مصار',
-          'كمه',
-          'بوكسات الهدايا',
-          'عصي', 
-          'أقمشة',
-          'نظارات',
-          'ساعات',
-           'خواتم',
-           'عطور', 
-           'أحذية',
-            'محافظ'],
+    categories: ['الكل', 'مصار', 'كمه', 'بوكسات الهدايا', 'عصي', 'أقمشة', 'نظارات', 'ساعات', 'خواتم', 'عطور', 'أحذية', 'محافظ'],
 };
 
 const ShopPage = () => {
@@ -25,7 +14,8 @@ const ShopPage = () => {
         category: 'الكل',
         massarPatternType: '',
         massarSubType: '',
-        size: ''
+        kumaType: '',
+        kumaSize: '',
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [ProductsPerPage] = useState(8);
@@ -39,7 +29,8 @@ const ShopPage = () => {
                 category: categoryParam,
                 massarPatternType: '',
                 massarSubType: '',
-                size: ''
+                kumaType: '',
+                kumaSize: '',
             }));
             setCurrentPage(1);
         }
@@ -47,8 +38,9 @@ const ShopPage = () => {
 
     const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery({
         category: filtersState.category !== 'الكل' ? filtersState.category : '',
-        subCategory: filtersState.massarSubType,
-        size: filtersState.category === 'كمه' ? filtersState.size : '',
+        subCategory: filtersState.category === 'كمه' ? 
+                    (filtersState.kumaSize ? `${filtersState.kumaType}-${filtersState.kumaSize}` : filtersState.kumaType) : 
+                    filtersState.category === 'مصار' ? filtersState.massarSubType : '',
         page: currentPage,
         limit: ProductsPerPage,
     });
@@ -58,7 +50,8 @@ const ShopPage = () => {
             category: 'الكل',
             massarPatternType: '',
             massarSubType: '',
-            size: ''
+            kumaType: '',
+            kumaSize: '',
         });
         setCurrentPage(1);
     };

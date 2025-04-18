@@ -13,20 +13,12 @@ const productsApi = createApi({
       query: ({
         category,
         subCategory,
-        color,
-        size,
-        minPrice,
-        maxPrice,
         page = 1,
         limit = 10,
       }) => {
         const params = {
-          ...(category && { category }),
-          ...(category === "مصار" && subCategory && { subCategory }),
-          ...(color && { color }),
-          ...(category === "كمه" && size && { size }),
-          ...(minPrice && { minPrice }),
-          ...(maxPrice && { maxPrice }),
+          ...(category && category !== 'الكل' && { category }),
+          ...(subCategory && { subCategory }),
           page: page.toString(),
           limit: limit.toString(),
         };
@@ -38,7 +30,6 @@ const productsApi = createApi({
       },
       providesTags: ["Products"],
     }),
-
     fetchProductById: builder.query({
       query: (id) => `/${id}`,
       providesTags: (result, error, id) => [{ type: "Products", id }],
@@ -76,8 +67,6 @@ const productsApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [{ type: "Products", id }],
     }),
-
-    // يمكن إضافة نقاط نهاية إضافية هنا
   }),
 });
 

@@ -4,7 +4,7 @@ import img1 from "../../assets/msr.png";
 import img2 from "../../assets/Screenshot 2025-04-04 114617.png";
 import img3 from "../../assets/3.jpeg";
 import img4 from "../../assets/4.jpeg";
-import img5 from "../../assets/fabric-textured-layers-background (1).jpg";
+import img5 from "../../assets/pexels-malik-usman-3932093-30516878.jpg";
 import img6 from "../../assets/rang.png";
 import img7 from "../../assets/7.jpeg";
 import img8 from "../../assets/8.jpeg";
