@@ -1,23 +1,15 @@
-// import { defineConfig } from 'vite';
-// import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// export default defineConfig({
-//     plugins: [react()],
-//     server: {
-//         proxy: {
-//             '/api': {
-//                 target: 'https://genuine-backend.vercel.app', // رابط الخادم الخلفي
-//                 changeOrigin: true, // تغيير الأصل للخادم الخلفي
-//                 rewrite: (path) => path.replace(/^\/api/, ''), // إزالة /api من الرابط
-//             },
-//         },
-//     },
-// });
-
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+    plugins: [react()],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'https://genuine-b.vercel.app', // رابط الخادم الخلفي
+                changeOrigin: true, // تغيير الأصل للخادم الخلفي
+                rewrite: (path) => path.replace(/^\/api/, ''), // إزالة /api من الرابط
+            },
+        },
+    },
+});
