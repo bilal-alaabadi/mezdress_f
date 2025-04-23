@@ -19,6 +19,7 @@ const categories = [
     { label: 'عطور', value: 'عطور' },
     { label: 'أحذية', value: 'أحذية' },
     { label: 'محافظ', value: 'محافظ' },
+    { label: 'أطقم', value: 'أطقم' },
 ];
 
 const kumaTypes = [

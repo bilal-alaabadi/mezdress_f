@@ -5,7 +5,7 @@ import ShopFiltering from './ShopFiltering';
 import { useFetchAllProductsQuery } from '../../redux/features/products/productsApi';
 
 const filters = {
-    categories: ['الكل', 'مصار', 'كمه', 'بوكسات الهدايا', 'عصي', 'أقمشة', 'نظارات', 'ساعات', 'خواتم', 'عطور', 'أحذية', 'محافظ'],
+    categories: ['الكل', 'مصار', 'كمه', 'بوكسات الهدايا', 'عصي', 'أقمشة', 'نظارات', 'ساعات', 'خواتم', 'عطور', 'أحذية', 'محافظ','أطقم'],
 };
 
 const ShopPage = () => {
