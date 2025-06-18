@@ -6,7 +6,7 @@ import { FaWhatsapp } from 'react-icons/fa'; // استيراد أيقونة ال
 
 const Home = () => {
   // رقم الهاتف أو رابط الدردشة على الواتساب
-  const whatsappNumber = "96877401491"; // استبدل برقم الهاتف المطلوب
+  const whatsappNumber = "96894300313"; // استبدل برقم الهاتف المطلوب
   const whatsappMessage = "مرحباً، أريد الاستفسار عن المنتجات"; // الرسالة الافتراضية
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 

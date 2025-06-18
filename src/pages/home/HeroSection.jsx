@@ -1,31 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import img1 from "../../assets/msr.png";
-import img2 from "../../assets/Screenshot 2025-04-04 114617.png";
-import img3 from "../../assets/3.jpeg";
-import img4 from "../../assets/4.jpeg";
-import img5 from "../../assets/km.png";
-import img6 from "../../assets/rang.png";
-import img7 from "../../assets/7.jpeg";
-import img8 from "../../assets/8.jpeg";
-import img9 from "../../assets/High-resolution stock photo of a Gift box Oman; high angle perspective with contrasting chiaroscuro lighting, showing strong contrasts and deep shadows; professional quality, elevated view, commercial style.jpg";
-import img10 from "../../assets/stack.png";
-import img11 from "../../assets/Wallet depicted with chiaroscuro lighting, smooth gradient transitions, strong contrasts, and deep shadows, seamless color blending.jpg";
-import img12 from "../../assets/at.png";
+import img1 from "../../assets/Asset 8.png";
+import img2 from "../../assets/Asset 10.png";
+import img3 from "../../assets/Asset 8.png";
+import img4 from "../../assets/Asset 12.png";
+import img5 from "../../assets/Asset 11.png";
+import img6 from "../../assets/Asset 13.png";
+import img7 from "../../assets/لايت1.png";
+
 
 const cards = [
-    { id: 1, image: img1, trend: '', title: 'مصار' },
-    { id: 2, image: img2, trend: '', title: 'كميم' }, // تأكد من تطابق الأسماء مع الفئات في ShopPage
-    { id: 3, image: img9, trend: '', title: 'بوكسات الهدايا' },
-    { id: 4, image: img5, trend: '', title: 'أقمشة' },
-    { id: 5, image: img10, trend: '', title: 'عصي' },
-    { id: 6, image: img3, trend: '', title: 'نظارات' },
-    { id: 7, image: img4, trend: '', title: 'ساعات' },
-    { id: 8, image: img6, trend: '', title: 'خواتم' },
-    { id: 9, image: img7, trend: '', title: 'عطور' },
-    { id: 10, image: img8, trend: '', title: 'أحذية' },
-    { id: 11, image: img11, trend: '', title: 'محافظ' },
-    { id: 12, image: img12, trend: '', title: 'أطقم' },
+    { id: 1, image: img1, trend: '', title: 'نظارات' },
+    { id: 2, image: img2, trend: '', title: 'محافظ' }, // تأكد من تطابق الأسماء مع الفئات في ShopPage
+    { id: 3, image: img3, trend: '', title: ' ساعات' },
+    { id: 4, image: img4, trend: '', title: 'غتر' },
+    { id: 5, image: img5, trend: '', title: 'اقلام' },
+    { id: 6, image: img6, trend: '', title: 'بوكسات الشهر' },
+    { id: 7, image: img7, trend: '', title: 'أقمشة' },
+    
 ];
 
 const HeroSection = () => {

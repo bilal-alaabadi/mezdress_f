@@ -1,40 +1,63 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../redux/features/cart/cartSlice';
-import { Link } from 'react-router-dom';
 
 const OrderSummary = ({ onClose }) => {
     const dispatch = useDispatch();
-    const { selectedItems, totalPrice } = useSelector((store) => store.cart);
+    const { products, selectedItems, totalPrice } = useSelector((store) => store.cart);
+    const shippingFee = 2; // سعر الشحن 2 ريال عماني
 
     const handleClearCart = () => {
         dispatch(clearCart());
     };
 
+    const createWhatsAppMessage = () => {
+        let message = " الطلب\n\n";
+        
+        products.forEach((product) => {
+            message += ` ${product.name}\n`;
+            message += ` الكمية: ${product.quantity}\n`;
+            message += `السعر: ر.ع ${product.price.toFixed(2)}\n`;
+            message += `الرابط: http://localhost:5173/shop${product.url || `/product/${product._id}`}\n`;
+            message += `----------------\n`;
+        });
+        
+        message += `\n *المجموع الكلي*: ر.ع ${totalPrice.toFixed(2)}`;
+        message += `\n *سعر الشحن*: ر.ع ${shippingFee.toFixed(2)}`;
+        message += `\n *المجموع النهائي*: ر.ع ${(totalPrice + shippingFee).toFixed(2)}`;
+        message += "\n\nشكراً لاختياركم! ";
+        
+        return message; 
+    };
+
+    const whatsappLink = `https://wa.me/96894300313?text=${encodeURIComponent(createWhatsAppMessage())}`;
+
     return (
-        <div className='bg-[#FAEBD7] mt-5 rounded text-base' >
+        <div className='bg-[#FAEBD7] mt-5 rounded text-base'>
             <div className='px-6 py-4 space-y-5'>
                 <h2 className='text-xl text-text-dark'>ملخص الطلب</h2>
-                <p className='text-text-dark mt-2 ' >العناصر المحددة: {selectedItems}</p>
-                <p className='font-bold '>السعر الإجمالي:  ر.ع{totalPrice.toFixed(2)}</p>
+                <p className='text-text-dark mt-2'>عدد العناصر: {selectedItems}</p>
+                <p className='font-bold text-lg'>المجموع الكلي: ر.ع {totalPrice.toFixed(2)}</p>
+                <p className='text-text-dark'>سعر الشحن: ر.ع {shippingFee.toFixed(2)}</p>
+                <p className='font-bold text-lg text-primary'>
+                    المجموع النهائي: ر.ع {(totalPrice + shippingFee).toFixed(2)}
+                </p>
                 <div className='px-4 mb-6'>
                     <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleClearCart();
-                        }}
+                        onClick={handleClearCart}
                         className='bg-red-500 px-3 py-1.5 text-white mt-2 rounded-md flex justify-between items-center mb-4'
                     >
                         <span className='mr-2'>تفريغ السلة</span>
                         <i className="ri-delete-bin-7-line"></i>
                     </button>
-                    {/* <Link to="/checkout">
-                    </Link> */}
-                    <a href="https://api.whatsapp.com/send/?phone=96877401491&text&type=phone_number&app_absent=0">
-                        <button
-                            onClick={onClose} // إغلاق السلة عند الضغط على الزر
-                            className='bg-green-600 px-3 py-1.5 text-white mt-2 rounded-md flex justify-between items-center'
-                        >
+
+                    <a
+                        href={whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={onClose}
+                    >
+                        <button className='bg-green-600 px-3 py-1.5 text-white mt-2 rounded-md flex justify-between items-center'>
                             <span className='mr-2'>إتمام الشراء</span>
                             <i className="ri-bank-card-line"></i>
                         </button>

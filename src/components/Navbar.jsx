@@ -5,7 +5,7 @@ import CartModal from '../pages/shop/CartModal';
 import avatarImg from "../assets/avatar.png";
 import { useLogoutUserMutation } from '../redux/features/auth/authApi';
 import { logout } from '../redux/features/auth/authSlice';
-import logo from "../assets/option 5.png"
+import logo from "../assets/Asset_8__1_-removebg-preview.png"
 
 const Navbar = () => {
     const products = useSelector((state) => state.cart.products);
@@ -86,7 +86,7 @@ const Navbar = () => {
                         <img 
                             src={logo} 
                             alt="شعار رؤية" 
-                            className="w-72 h-56 sm:w-60 sm:h-60 lg:w-72 lg:h-72 pt-2 pb-2"
+                            className="w-72 h-56 sm:w-60 sm:h-60 lg:w-72 lg:h-72 pt-5 pb-2"
                             loading="lazy" 
                         />
                     </Link>

@@ -9,9 +9,6 @@ const TrendingProducts = () => {
     // جلب البيانات من الخادم
     const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery({
         category: '',
-        color: '',
-        minPrice: '',
-        maxPrice: '',
         page: 1,
         limit: 20, // يمكن تغيير الحد الأقصى حسب الحاجة
     });
@@ -34,8 +31,7 @@ const TrendingProducts = () => {
                 احدث المنتجات
             </h2>
             <p className="section__subheader text-lg text-gray-900 mb-12" dir='rtl'>
-                اكتشف أحدث الصيحات: رفع مستوى أناقتك مع مجموعتنا المختارة من منتجات موضة الرجاليه الرائجة.
-            </p>
+أصالة تليق بك، بروح عصرية لا تشبه سواك.  </p>
 
             {/* Product Cards */}
             <div className="mt-12" dir='rtl'>
