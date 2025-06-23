@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ProductCards from './ProductCards';
 import ShopFiltering from './ShopFiltering';
 import { useFetchAllProductsQuery } from '../../redux/features/products/productsApi';
@@ -12,27 +13,50 @@ const categories = [
     { label: 'اقلام', value: 'اقلام' },
     { label: 'بوكسات الشهر', value: 'بوكسات الشهر' },
     { label: 'أقمشة', value: 'أقمشة'},
+    { label: 'مسباح', value: 'مسباح'},
+];
+
+const genderTypes = [
+    { label: 'الكل', value: 'الكل' },
+    { label: 'رجالي', value: 'رجالي' },
+    { label: 'نسائي', value: 'نسائي' },
 ];
 
 const ShopPage = () => {
+    const [searchParams] = useSearchParams();
+    const urlCategory = searchParams.get('category');
+    const urlGender = searchParams.get('gender');
+    
     const [filtersState, setFiltersState] = useState({
-        category: 'الكل'
+        category: urlCategory || 'الكل',
+        gender: urlGender || 'الكل'
     });
 
     const [currentPage, setCurrentPage] = useState(1);
     const [ProductsPerPage] = useState(8);
     const [showFilters, setShowFilters] = useState(false);
 
+    useEffect(() => {
+        if (urlCategory || urlGender) {
+            setFiltersState({
+                category: urlCategory || 'الكل',
+                gender: urlGender || 'الكل'
+            });
+        }
+    }, [urlCategory, urlGender]);
+
     const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery({
         category: filtersState.category === 'الكل' ? '' : filtersState.category,
+        gender: (filtersState.category === 'نظارات' || filtersState.category === 'ساعات') ? 
+               (filtersState.gender === 'الكل' ? '' : filtersState.gender) : '',
         page: currentPage,
         limit: ProductsPerPage,
     });
 
     const clearFilters = () => {
-        setFiltersState({ category: 'الكل' });
+        setFiltersState({ category: 'الكل', gender: 'الكل' });
         setCurrentPage(1);
-    };
+    }; 
 
     const handlePageChange = (pageNumber) => {
         if (pageNumber > 0 && pageNumber <= totalPages) {
@@ -65,6 +89,7 @@ const ShopPage = () => {
                     <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
                         <ShopFiltering
                             categories={categories}
+                            genderTypes={genderTypes}
                             filtersState={filtersState}
                             setFiltersState={setFiltersState}
                             clearFilters={clearFilters}

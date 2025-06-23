@@ -15,7 +15,14 @@ const categories = [
     { label: 'اقلام', value: 'اقلام' },
     { label: 'بوكسات الشهر', value: 'بوكسات الشهر' },
     { label: 'أقمشة', value: 'أقمشة'},
+    { label: 'مسباح', value: 'مسباح'},
 ];
+
+const genderTypes = [
+    { label: 'رجالي', value: 'رجالي' },
+    { label: 'نسائي', value: 'نسائي' },
+];
+
 const UpdateProduct = () => {
     const {id} = useParams();
     const navigate = useNavigate();
@@ -25,12 +32,14 @@ const UpdateProduct = () => {
         category: '',
         price: '',
         description: '',
-        image: ''
+        image: '',
+        gender: ''
     });
 
+    const [showGenderField, setShowGenderField] = useState(false);
     const {data: productData, isLoading: isProductLoading, error: fetchError, refetch} = useFetchProductByIdQuery(id);
     const [newImage, setNewImage] = useState(null);
-    const {name, category, description, image: imageURL, price} = productData?.product || {};
+    const {name, category, description, image: imageURL, price, gender} = productData?.product || {};
 
     const [updateProduct, {isLoading: isUpdating, error: updateError}] = useUpdateProductMutation();
 
@@ -41,10 +50,19 @@ const UpdateProduct = () => {
                 category: category || '',
                 price: price || '',
                 description: description || '',
-                image: imageURL || ''
+                image: imageURL || '',
+                gender: gender || ''
             });
+            setShowGenderField(category === 'نظارات' || category === 'ساعات');
         }
     }, [productData]);
+
+    useEffect(() => {
+        setShowGenderField(product.category === 'نظارات' || product.category === 'ساعات');
+        if (!(product.category === 'نظارات' || product.category === 'ساعات')) {
+            setProduct(prev => ({ ...prev, gender: '' }));
+        }
+    }, [product.category]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -59,38 +77,56 @@ const UpdateProduct = () => {
     };
 
     const handleSubmit = async (e) => {
-  e.preventDefault();
+        e.preventDefault();
 
-  const formData = new FormData();
-  formData.append('name', product.name);
-  formData.append('category', product.category);
-  formData.append('price', product.price);
-  formData.append('description', product.description);
-  if(newImage) {
-    formData.append('image', newImage);
-  }
-  formData.append('author', user._id);
+        // التحقق من الحقول المطلوبة
+        const requiredFields = {
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            description: product.description
+        };
+        
+        // إذا كانت الفئة نظارات أو ساعات، نتحقق من وجود قيمة للنوع
+        if (product.category === 'نظارات' || product.category === 'ساعات') {
+            requiredFields.gender = product.gender;
+        }
+        
+        // التحقق من أن جميع الحقول المطلوبة مملوءة
+        if (Object.values(requiredFields).some(field => !field)) {
+            alert('أملأ كل الحقول المطلوبة');
+            return;
+        }
 
-  try {
-    await updateProduct({ 
-      id: id, 
-      body: formData,
-      // لا تمرر headers هنا، سيتم التعامل معها تلقائياً
-    }).unwrap();
-    
-    alert('تم تحديث المنتج بنجاح');
-    await refetch();
-    navigate("/dashboard/manage-products");
-  } catch (error) {
-    console.error('Failed to update product:', error);
-    if(error.status === 401) {
-      alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
-      navigate('/login');
-    } else {
-      alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
-    }
-  }
-};
+        const formData = new FormData();
+        formData.append('name', product.name);
+        formData.append('category', product.category);
+        formData.append('price', product.price);
+        formData.append('description', product.description);
+        if (product.gender) formData.append('gender', product.gender);
+        if(newImage) formData.append('image', newImage);
+        formData.append('author', user._id);
+
+        try {
+            await updateProduct({ 
+                id: id, 
+                body: formData
+            }).unwrap();
+            
+            alert('تم تحديث المنتج بنجاح');
+            await refetch();
+            navigate("/dashboard/manage-products");
+        } catch (error) {
+            console.error('Failed to update product:', error);
+            if(error.status === 401) {
+                alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
+                navigate('/login');
+            } else {
+                alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
+            }
+        }
+    };
+
     if(isProductLoading) return <div>تحميل ...</div>;
     if(fetchError) return <div>Error fetching product!...</div>;
 
@@ -101,7 +137,7 @@ const UpdateProduct = () => {
                 <TextInput
                     label="أسم المنتج"
                     name="name"
-                    placeholder="Ex: Diamond Earrings"
+                    placeholder="أكتب أسم المنتج"
                     value={product.name}
                     onChange={handleChange}
                 />
@@ -112,6 +148,17 @@ const UpdateProduct = () => {
                     onChange={handleChange}
                     options={categories}
                 />
+                
+                {showGenderField && (
+                    <SelectInput
+                        label="نوع المنتج"
+                        name="gender"
+                        value={product.gender}
+                        onChange={handleChange}
+                        options={genderTypes}
+                    />
+                )}
+                
                 <TextInput
                     label="السعر"
                     name="price"
@@ -124,7 +171,7 @@ const UpdateProduct = () => {
                     name="image"
                     id="image"
                     value={newImage || product.image}
-                    placeholder='Image'
+                    placeholder='صورة المنتج'
                     setImage={handleImageChange}
                 />
                 <div>
@@ -134,7 +181,7 @@ const UpdateProduct = () => {
                         id="description"
                         className='add-product-InputCSS'
                         value={product.description}
-                        placeholder='Write a product description'
+                        placeholder='أكتب وصف المنتج'
                         onChange={handleChange}
                     ></textarea>
                 </div>

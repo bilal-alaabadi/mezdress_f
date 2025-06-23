@@ -12,14 +12,19 @@ const productsApi = createApi({
     fetchAllProducts: builder.query({
       query: ({
         category,
+        gender,
         page = 1,
         limit = 10,
       }) => {
-        const queryParams = new URLSearchParams({
-          category: category || "",
+        const params = {
           page: page.toString(),
           limit: limit.toString(),
-        }).toString();
+        };
+
+        if (category) params.category = category;
+        if (gender) params.gender = gender;
+
+        const queryParams = new URLSearchParams(params).toString();
 
         return `/?${queryParams}`;
       },
@@ -44,19 +49,19 @@ const productsApi = createApi({
     fetchRelatedProducts: builder.query({
       query: (id) => `/related/${id}`,
     }),
+
     updateProduct: builder.mutation({
-  query: ({ id, body, headers }) => ({
-    url: `update-product/${id}`,
-    method: "PATCH",
-    body,
-    headers: {
-      ...headers,
-      // لا تضف 'Content-Type' هنا، سيتم تعيينه تلقائياً من قبل fetchBaseQuery
-    },
-    credentials: "include",
-  }),
-  invalidatesTags: ["Products"],
-}),
+      query: ({ id, body, headers }) => ({
+        url: `update-product/${id}`,
+        method: "PATCH",
+        body,
+        headers: {
+          ...headers,
+        },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Products"],
+    }),
 
     deleteProduct: builder.mutation({
       query: (id) => ({
@@ -69,6 +74,13 @@ const productsApi = createApi({
   }),
 });
 
-export const {useFetchAllProductsQuery, useFetchProductByIdQuery, useAddProductMutation, useUpdateProductMutation, useDeleteProductMutation, useFetchRelatedProductsQuery} = productsApi;
+export const {
+  useFetchAllProductsQuery,
+  useFetchProductByIdQuery,
+  useAddProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useFetchRelatedProductsQuery
+} = productsApi;
 
 export default productsApi;

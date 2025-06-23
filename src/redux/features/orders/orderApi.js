@@ -14,6 +14,17 @@ const orderApi = createApi({
                 url: `/${email}`,
                 method: 'GET'
             }),
+            transformResponse: (response) => {
+                return response.orders.map(order => ({
+                    ...order,
+                    products: order.products.map(product => ({
+                        ...product,
+                        name: product.name || product.productId?.name || 'منتج غير محدد',
+                        price: product.price || product.productId?.price || 0,
+                        image: product.image || product.productId?.image || 'https://via.placeholder.com/150'
+                    }))
+                }));
+            },
             providesTags: ['Order']
         }),
         getOrderById: builder.query({
@@ -24,12 +35,21 @@ const orderApi = createApi({
             providesTags: ['Order']
         }),
         getAllOrders: builder.query({
-            query: () => (
-                {
-                    url: '',
-                    method: 'GET',  
-                }
-            ),
+            query: () => ({
+                url: '',
+                method: 'GET',
+            }),
+            transformResponse: (response) => {
+                return response.map(order => ({
+                    ...order,
+                    products: order.products.map(product => ({
+                        ...product,
+                        name: product.name || product.productId?.name || 'منتج غير محدد',
+                        price: product.price || product.productId?.price || 0,
+                        image: product.image || product.productId?.image || 'https://via.placeholder.com/150'
+                    }))
+                }));
+            },
             providesTags: ['Order']
         }),
         updateOrderStatus: builder.mutation({
@@ -50,5 +70,12 @@ const orderApi = createApi({
     })
 })
 
-export const {useGetOrdersByEmailQuery, useGetOrderByIdQuery, useGetAllOrdersQuery, useUpdateOrderStatusMutation, useDeleteOrderMutation} = orderApi;
+export const {
+    useGetOrdersByEmailQuery,
+    useGetOrderByIdQuery,
+    useGetAllOrdersQuery,
+    useUpdateOrderStatusMutation,
+    useDeleteOrderMutation
+} = orderApi;
+
 export default orderApi;

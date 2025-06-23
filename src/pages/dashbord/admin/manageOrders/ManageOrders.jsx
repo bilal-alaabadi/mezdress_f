@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useDeleteOrderMutation, useGetAllOrdersQuery } from '../../../../redux/features/orders/orderApi';
 import { formatDate } from '../../../../utils/formateDate';
 import UpdateOrderModal from './UpdateOrderModal';
-import html2pdf from 'html2pdf.js'; // مكتبة لتحويل HTML إلى PDF
+import html2pdf from 'html2pdf.js';
 
 const ManageOrders = () => {
     const { data: orders, error, isLoading, refetch } = useGetAllOrdersQuery();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [viewOrder, setViewOrder] = useState(null); // حالة لعرض تفاصيل الطلب
+    const [viewOrder, setViewOrder] = useState(null);
     const [deleteOrder] = useDeleteOrderMutation();
 
     const handleEditOrder = (order) => {
@@ -24,96 +24,101 @@ const ManageOrders = () => {
     const handleDeleteOder = async (orderId) => {
         try {
             await deleteOrder(orderId).unwrap();
-            alert("Order deleted successfully");
+            alert("تم حذف الطلب بنجاح");
             refetch();
         } catch (error) {
-            console.error("Failed to delete order:", error);
+            console.error("فشل حذف الطلب:", error);
         }
     };
 
     const handleViewOrder = (order) => {
-        setViewOrder(order); // تعيين الطلب المحدد لعرض تفاصيله
+        setViewOrder(order);
     };
 
     const handleCloseViewModal = () => {
-        setViewOrder(null); // إغلاق عرض التفاصيل
+        setViewOrder(null);
     };
 
     const handlePrintOrder = () => {
-        window.print(); // طباعة الصفحة
+        window.print();
     };
 
     const handleDownloadPDF = () => {
-        const element = document.getElementById('order-details'); // العنصر الذي يحتوي على تفاصيل الطلب
+        const element = document.getElementById('order-details');
         const options = {
             margin: [10, 10],
-            filename: `order_${viewOrder.orderId}.pdf`,
+            filename: `طلب_${viewOrder._id}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         };
-        html2pdf().from(element).set(options).save(); // تحويل HTML إلى PDF وحفظه
+        html2pdf().from(element).set(options).save();
     };
 
-    if (isLoading) return <div>Loading....</div>;
-    if (error) return <div>Something went wrong!</div>;
+    const formatPrice = (price) => {
+        return (parseFloat(price) || 0).toFixed(2);
+    };
+
+    if (isLoading) return <div className="p-4 text-center">جار التحميل...</div>;
+    if (error) return <div className="p-4 text-center text-red-500">لا توجد طلبات</div>;
 
     return (
-        <div className='section__container p-6'>
-            <h2 className='text-2xl font-semibold mb-4'>Manage Orders</h2>
-            <table className='min-w-full bg-white border border-gray-200 rounded-lg'>
-                <thead className='bg-gray-100'>
-                    <tr>
-                        <th className='py-3 px-4 border-b'>Order Id</th>
-                        <th className='py-3 px-4 border-b'>Customer</th>
-                        <th className='py-3 px-4 border-b'>Status</th>
-                        <th className='py-3 px-4 border-b'>Date</th>
-                        <th className='py-3 px-4 border-b'>Actions</th>
-                    </tr>
-                </thead>
+        <div className='section__container p-4 md:p-6' dir='rtl'>
+            <h2 className='text-xl md:text-2xl font-semibold mb-4'>إدارة الطلبات</h2>
+            
+            <div className="overflow-x-auto">
+                <table className='min-w-full bg-white border border-gray-200 rounded-lg'>
+                    <thead className='bg-gray-100'>
+                        <tr>
+                            <th className='py-3 px-2 md:px-4 border-b text-right'>رقم الطلب</th>
+                            <th className='py-3 px-2 md:px-4 border-b text-right'>العميل</th>
+                            <th className='py-3 px-2 md:px-4 border-b text-right'>التاريخ</th>
+                            <th className='py-3 px-2 md:px-4 border-b text-right'>الإجراءات</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    {orders &&
-                        orders.map((order, index) => (
-                            <tr key={index}>
-                                <td className='py-3 px-4 border-b'>{order?.orderId}</td>
-                                <td className='py-3 px-4 border-b'>{order?.email}</td>
-                                <td className='py-3 px-4 border-b'>
-                                    <span
-                                        className={`inline-block px-3 py-1 text-xs text-white rounded-full ${getStatusColor(
-                                            order?.status
-                                        )}`}
-                                    >
-                                        {order?.status}
-                                    </span>
-                                </td>
-                                <td className='py-3 px-4 border-b'>{formatDate(order?.updatedAt)}</td>
-                                <td className='py-3 px-4 border-b flex items-center space-x-4'>
-                                    <button
-                                        className="text-blue-500 hover:underline"
-                                        onClick={() => handleViewOrder(order)} // عرض تفاصيل الطلب
-                                    >
-                                        View
-                                    </button>
-                                    <button
-                                        className="text-green-500 hover:underline"
-                                        onClick={() => handleEditOrder(order)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="text-red-500 hover:underline"
-                                        onClick={() => handleDeleteOder(order?._id)}
-                                    >
-                                        Delete
-                                    </button>
+                    <tbody>
+                        {orders?.length > 0 ? (
+                            orders.map((order, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className='py-3 px-2 md:px-4 border-b'>{order?.orderId || '--'}</td>
+                                    <td className='py-3 px-2 md:px-4 border-b'>{order?.email || 'غير محدد'}</td>
+                                    <td className='py-3 px-2 md:px-4 border-b'>{formatDate(order?.updatedAt)}</td>
+                                    <td className='py-3 px-2 md:px-4 border-b'>
+                                        <div className="flex flex-wrap gap-2 justify-end">
+                                            <button
+                                                className="text-blue-500 hover:underline text-sm md:text-base"
+                                                onClick={() => handleViewOrder(order)}
+                                            >
+                                                عرض
+                                            </button>
+                                            <button
+                                                className="text-green-500 hover:underline text-sm md:text-base"
+                                                onClick={() => handleEditOrder(order)}
+                                            >
+                                                تعديل
+                                            </button>
+                                            <button
+                                                className="text-red-500 hover:underline text-sm md:text-base"
+                                                onClick={() => handleDeleteOder(order?._id)}
+                                            >
+                                                حذف
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" className="py-4 text-center text-gray-500">
+                                    لا توجد طلبات متاحة
                                 </td>
                             </tr>
-                        ))}
-                </tbody>
-            </table>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
-            {/* Update Order Modal */}
             {selectedOrder && (
                 <UpdateOrderModal
                     order={selectedOrder}
@@ -122,10 +127,9 @@ const ManageOrders = () => {
                 />
             )}
 
-            {/* View Order Details Modal */}
             {viewOrder && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg w-full max-w-2xl print-modal" id="order-details">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 md:p-4 z-50">
+                    <div className="bg-white p-4 md:p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto print-modal" id="order-details" dir="rtl">
                         <style>
                             {`
                                 @media print {
@@ -148,45 +152,98 @@ const ManageOrders = () => {
                                     .print-modal button {
                                         display: none;
                                     }
-                                    .print-modal h2 {
-                                        font-size: 24px;
-                                        margin-bottom: 20px;
-                                    }
-                                    .print-modal p {
-                                        font-size: 16px;
-                                        margin-bottom: 10px;
-                                    }
                                 }
                             `}
                         </style>
-                        <h2 className="text-xl font-semibold mb-4">Order Details</h2>
-                        <div className="space-y-4">
-                            {viewOrder.orderId && <p><strong>Order ID:</strong> {viewOrder.orderId}</p>}
-                            {viewOrder.email && <p><strong>Customer Email:</strong> {viewOrder.email}</p>}
-                            {viewOrder.phoneNumber && <p><strong>Phone:</strong> {viewOrder.phoneNumber}</p>}
-                            {viewOrder.shippingAddress?.province && <p><strong>Province:</strong> {viewOrder.shippingAddress.province}</p>}
-                            {viewOrder.shippingAddress?.wilayat && <p><strong>Wilayat:</strong> {viewOrder.shippingAddress.wilayat}</p>}
-                            {viewOrder.shippingAddress?.streetAddress && <p><strong>Street Address:</strong> {viewOrder.shippingAddress.streetAddress}</p>}
-                            {viewOrder.orderNotes && <p><strong>Order Notes:</strong> {viewOrder.orderNotes}</p>}
+                        <h2 className="text-lg md:text-xl font-semibold mb-4">تفاصيل الطلب #{viewOrder.orderId}</h2>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="bg-gray-50 p-3 rounded-md">
+                                <h3 className="font-medium text-base md:text-lg mb-2">معلومات العميل</h3>
+                                <div className="space-y-2 text-sm md:text-base">
+                                    <p><strong>الاسم:</strong> {viewOrder.customerName || 'غير محدد'}</p>
+                                    <p><strong>البريد الإلكتروني:</strong> {viewOrder.email || 'غير محدد'}</p>
+                                    <p><strong>رقم الهاتف:</strong> {viewOrder.customerPhone || 'غير محدد'}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 p-3 rounded-md">
+                                <h3 className="font-medium text-base md:text-lg mb-2">معلومات التوصيل</h3>
+                                <div className="space-y-2 text-sm md:text-base">
+                                    <p><strong>الولاية:</strong> {viewOrder.wilayat || 'غير محدد'}</p>
+                                    <p><strong>تاريخ الطلب:</strong> {formatDate(viewOrder.createdAt)}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div className="mt-4 flex space-x-4">
+                        
+                        <div className="mb-4">
+                            <h3 className="font-medium text-base md:text-lg mb-2">المنتجات المطلوبة</h3>
+                            <div className="border rounded-lg overflow-hidden">
+                                <table className="min-w-full">
+                                    <thead className="bg-gray-100">
+                                        <tr>
+                                            <th className="py-2 px-4 text-right">المنتج</th>
+                                            <th className="py-2 px-4 text-right">الكمية</th>
+                                            <th className="py-2 px-4 text-right">سعر الوحدة</th>
+                                            <th className="py-2 px-4 text-right">المجموع</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {viewOrder.products?.map((product, index) => (
+                                            <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                <td className="py-3 px-4">
+                                                    <div>
+                                                        <p className="font-medium">{product.name || 'منتج غير محدد'}</p>
+                                                        {product.selectedSize && (
+                                                            <p className="text-xs text-gray-500">الحجم: {product.selectedSize}</p>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4">{product.quantity || 0}</td>
+                                                <td className="py-3 px-4">{formatPrice(product.price)} ر.ع</td>
+                                                <td className="py-3 px-4 font-medium">
+                                                    {formatPrice((product.price || 0) * (product.quantity || 0))} ر.ع
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="flex justify-between items-center border-b pb-2 mb-2">
+                                <span>الإجمالي الجزئي:</span>
+                                <span>{formatPrice(viewOrder.amount - 2)} ر.ع</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b pb-2 mb-2">
+                                <span>رسوم الشحن:</span>
+                                <span>2.00 ر.ع</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-2">
+                                <span className="font-bold">الإجمالي النهائي:</span>
+                                <span className="font-bold text-lg">{formatPrice(viewOrder.amount)} ر.ع</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap gap-3 justify-end">
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 text-sm md:text-base"
                                 onClick={handleCloseViewModal}
                             >
-                                Close
+                                إغلاق
                             </button>
                             <button
-                                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm md:text-base"
                                 onClick={handlePrintOrder}
                             >
-                                Print
+                                طباعة الفاتورة
                             </button>
                             <button
-                                className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600"
+                                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 text-sm md:text-base"
                                 onClick={handleDownloadPDF}
                             >
-                                Download PDF
+                                تحميل PDF
                             </button>
                         </div>
                     </div>
@@ -194,21 +251,6 @@ const ManageOrders = () => {
             )}
         </div>
     );
-};
-
-const getStatusColor = (status) => {
-    switch (status) {
-        case 'pending':
-            return 'bg-yellow-500';
-        case 'processing':
-            return 'bg-blue-500';
-        case 'shipped':
-            return 'bg-green-500';
-        case 'completed':
-            return 'bg-gray-500';
-        default:
-            return 'bg-gray-300';
-    }
 };
 
 export default ManageOrders;

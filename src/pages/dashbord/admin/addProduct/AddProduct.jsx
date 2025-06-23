@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import TextInput from './TextInput';
 import SelectInput from './SelectInput';
@@ -15,9 +15,13 @@ const categories = [
     { label: 'اقلام', value: 'اقلام' },
     { label: 'بوكسات الشهر', value: 'بوكسات الشهر' },
     { label: 'أقمشة', value: 'أقمشة'},
+    { label: 'مسباح', value: 'مسباح'},
 ];
 
-
+const genderTypes = [
+    { label: 'رجالي', value: 'رجالي' },
+    { label: 'نسائي', value: 'نسائي' },
+];
 
 const AddProduct = () => {
     const { user } = useSelector((state) => state.auth);
@@ -26,12 +30,24 @@ const AddProduct = () => {
         name: '',
         category: '',
         price: '',
-        description: ''
+        description: '',
+        gender: ''
     });
-    const [image, setImage] = useState([]); // مصفوفة لحفظ روابط الصور
+    const [image, setImage] = useState([]);
+    const [showGenderField, setShowGenderField] = useState(false);
 
     const [AddProduct, { isLoading, error }] = useAddProductMutation();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // إظهار أو إخفاء حقل النوع حسب الفئة المختارة
+        setShowGenderField(product.category === 'نظارات' || product.category === 'ساعات');
+        
+        // إذا تم تغيير الفئة إلى غير نظارات أو ساعات، نمسح قيمة النوع
+        if (!(product.category === 'نظارات' || product.category === 'ساعات')) {
+            setProduct(prev => ({ ...prev, gender: '' }));
+        }
+    }, [product.category]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,7 +59,23 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!product.name || !product.category || !product.price || !product.description ||  image.length === 0) {
+        
+        // التحقق من الحقول المطلوبة
+        const requiredFields = {
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            description: product.description,
+            image: image.length > 0
+        };
+        
+        // إذا كانت الفئة نظارات أو ساعات، نتحقق من وجود قيمة للنوع
+        if (product.category === 'نظارات' || product.category === 'ساعات') {
+            requiredFields.gender = product.gender;
+        }
+        
+        // التحقق من أن جميع الحقول المطلوبة مملوءة
+        if (Object.values(requiredFields).some(field => !field)) {
             alert('أملأ كل الحقول');
             return;
         }
@@ -55,7 +87,8 @@ const AddProduct = () => {
                 name: '',
                 category: '',
                 price: '',
-                description: ''
+                description: '',
+                gender: ''
             });
             setImage([]);
             navigate("/shop");
@@ -82,6 +115,18 @@ const AddProduct = () => {
                     onChange={handleChange}
                     options={categories}
                 />
+                
+                {showGenderField && (
+                    <SelectInput
+                        label="نوع المنتج"
+                        name="gender"
+                        value={product.gender}
+                        onChange={handleChange}
+                        options={genderTypes}
+                        required
+                    />
+                )}
+                
                 <TextInput
                     label="السعر"
                     name="price"
@@ -102,7 +147,7 @@ const AddProduct = () => {
                         id="description"
                         className='add-product-InputCSS'
                         value={product.description}
-                        placeholder='Write a product description'
+                        placeholder='أكتب وصف المنتج'
                         onChange={handleChange}
                     ></textarea>
                 </div>

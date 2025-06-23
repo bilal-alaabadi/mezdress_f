@@ -4,6 +4,7 @@ const initialState = {
   products: [],
   selectedItems: 0,
   totalPrice: 0,
+  shippingFee: 2,
 };
 
 const cartSlice = createSlice({
@@ -19,7 +20,7 @@ const cartSlice = createSlice({
         state.products.push({ 
           ...action.payload, 
           quantity: 1,
-          url: `/product/${action.payload._id}` // إضافة رابط المنتج
+          url: `/product/${action.payload._id}`
         });
       }
 
@@ -50,11 +51,11 @@ const cartSlice = createSlice({
       state.products = [];
       state.selectedItems = 0;
       state.totalPrice = 0;
+      state.shippingFee = 2;
     }
   },
 });
 
-// دوال المساعدة
 export const setSelectedItems = (state) =>
   state.products.reduce((total, product) => total + product.quantity, 0);
 

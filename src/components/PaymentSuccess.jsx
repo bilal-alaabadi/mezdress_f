@@ -1,118 +1,123 @@
 import React, { useEffect, useState } from 'react';
-import { getBaseUrl } from '../utils/baseURL'; // استيراد دالة للحصول على الرابط الأساسي
-import TimelineStep from './Timeline'; // استيراد مكون الخطوة الزمنية
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { clearCart } from '../redux/features/cart/cartSlice';
 
-// مكون يعرض صفحة نجاح الدفع
 const PaymentSuccess = () => {
-    const [order, setOrder] = useState(null); // حالة لتخزين بيانات الطلب
-    const [error, setError] = useState(null); // حالة لتخزين الأخطاء
+  const { state } = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
 
-    // استخدام useEffect لتحميل بيانات الطلب عند تحميل الصفحة
-    useEffect(() => {
-        const query = new URLSearchParams(window.location.search); // استخراج معلمات البحث من عنوان URL
-        const sessionId = query.get('session_id'); // الحصول على معرف الجلسة
+  // تأكيد تفريغ السلة عند تحميل الصفحة
+  useEffect(() => {
+    dispatch(clearCart());
+    
+    // عرض رسالة النجاح بعد نصف ثانية (لضمان ظهورها بعد تحميل الصفحة)
+    const successTimer = setTimeout(() => {
+      setShowSuccess(true);
+      
+      // الانتقال إلى الصفحة الرئيسية بعد 5 ثوانٍ
+      const redirectTimer = setTimeout(() => {
+        navigate('/');
+      }, 5000);
+      
+      return () => clearTimeout(redirectTimer);
+    }, 500);
+    
+    return () => clearTimeout(successTimer);
+  }, [dispatch, navigate]);
 
-        if (sessionId) {
-            // طلب API لتأكيد الدفع
-            fetch(`${getBaseUrl()}/api/orders/confirm-payment`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ session_id: sessionId }) // إرسال معرف الجلسة
-            })
-                .then((res) => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
-                    return res.json(); // تحويل الاستجابة إلى JSON
-                })
-                .then((data) => {
-                    if (data.error) {
-                        throw new Error(data.error); // معالجة الأخطاء القادمة من السيرفر
-                    }
-                    setOrder(data.order); // تعيين بيانات الطلب في الحالة
-                })
-                .catch((err) => {
-                    console.error("Error confirming payment", err); // طباعة الخطأ
-                    setError(err.message); // تخزين رسالة الخطأ
-                });
-        } else {
-            setError("No session ID found in the URL"); // إذا لم يتم العثور على معرف الجلسة
-        }
-    }, []);
+  if (!state) {
+    return <div className="text-red-500 p-4">لا توجد بيانات طلب</div>;
+  }
 
-    // في حال وجود خطأ، عرض رسالة خطأ
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+  const { order, products, customerName, customerPhone, wilayat, totalAmount } = state;
 
-    // أثناء تحميل بيانات الطلب، عرض رسالة "جارِ التحميل"
-    if (!order) {
-        return <div>Loading...</div>;
-    }
+  return (
+    <>
+      {/* رسالة النجاح */}
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">تم الطلب بنجاح!</h2>
+            <p className="text-gray-700">سيتم تحويلك إلى الصفحة الرئيسية خلال لحظات...</p>
+          </div>
+        </div>
+      )}
+      
+      <section className='section__container rounded p-6'>
+        {/* تفاصيل المنتجات */}
+        <div className="mt-8 pt-6" dir='rtl'>
+          <h3 className="text-xl font-bold mb-4">تفاصيل المنتجات</h3>
+          <div className="space-y-6">
+            {products.map((product, index) => (
+              <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg">
+                <div className="md:w-1/4">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-auto rounded-md"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/150";
+                      e.target.alt = "صورة غير متوفرة";
+                    }}
+                  />
+                </div>
+                <div className="md:w-3/4">
+                  <h4 className="text-lg font-semibold">{product.name}</h4>
+                  <div className="mt-2">
+                    <span className="font-medium">الكمية: </span>
+                    <span>{product.quantity}</span>
+                  </div>
+                  {product.selectedSize && (
+                    <div className="mt-2">
+                      <span className="font-medium">الحجم: </span>
+                      <span>{product.selectedSize}</span>
+                    </div>
+                  )}
+                  <div className="mt-2">
+                    <span className="font-medium">السعر: </span>
+                    <span>{(product.price * product.quantity).toFixed(2)} ر.ع</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-    // دالة للتحقق مما إذا كانت الخطوة مكتملة بناءً على الحالة الحالية
-    const isCompleted = (status) => {
-        const statuses = ["pending", "processing", "shipped", "completed"];
-        return statuses.indexOf(status) < statuses.indexOf(order.status);
-    };
-
-    // دالة للتحقق مما إذا كانت الخطوة الحالية هي نفس الخطوة الحالية للطلب
-    const isCurrent = (status) => order.status === status;
-
-    // تعريف الخطوات الزمنية للطلب
-    const steps = [
-        {
-            status: 'pending',
-            label: 'قيد الانتظار',
-            description: <span className="font-bold">تم إنشاء طلبك وهو قيد الانتظار للمعالجة.</span>,
-            icon: { iconName: 'time-line', bgColor: 'red-500', textColor: 'gray-800' },
-        },
-        {
-            status: 'processing',
-            label: 'قيد المعالجة',
-            description: 'طلبك يتم معالجته حالياً.',
-            icon: { iconName: 'loader-line', bgColor: 'yellow-800', textColor: 'yellow-800' },
-        },
-        // {
-        //     status: 'shipped',
-        //     label: 'تم الشحن',
-        //     description: 'تم شحن طلبك.',
-        //     icon: { iconName: 'truck-line', bgColor: 'blue-800', textColor: 'blue-800' },
-        // },
-        // {
-        //     status: 'completed',
-        //     label: 'مكتمل',
-        //     description: 'تم إكمال طلبك بنجاح.',
-        //     icon: { iconName: 'check-line', bgColor: 'green-800', textColor: 'green-900' },
-        // },
-    ];
-
-    // عرض صفحة نجاح الدفع
-    return (
-        <section className='section__container rounded p-6'>
-            <h2 className='text-2xl font-semibold mb-4'>حالة الدفع: {order?.status}</h2>
-            <p className='mb-4'>معرف الطلب: {order?.orderId}</p>
-            <p className='mb-8'>الحالة: {order?.status}</p>
-
-            {/* عرض الخط الزمني للخطوات */}
-            <ol className='sm:flex items-center relative'>
-                {steps.map((step, index) => (
-                    <TimelineStep
-                        key={index} // مفتاح فريد للخطوة
-                        step={step} // بيانات الخطوة
-                        order={order} // بيانات الطلب
-                        isCompleted={isCompleted(step.status)} // التحقق إذا كانت الخطوة مكتملة
-                        isCurrent={isCurrent(step.status)} // التحقق إذا كانت الخطوة الحالية
-                        isLastStep={index === steps.length - 1} // التحقق إذا كانت الخطوة الأخيرة
-                        icon={step.icon} // بيانات الأيقونة
-                        description={step.description} // وصف الخطوة
-                    />
-                ))}
-            </ol>
-        </section>
-    );
+        {/* ملخص الطلب */}
+        <div className="mt-8 border-t pt-6" dir='rtl'>
+          <h3 className="text-xl font-bold mb-4">ملخص الطلب</h3>
+          <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <div className="flex justify-between py-2">
+              <span>الإجمالي النهائي:</span>
+              <span className="font-bold">{totalAmount.toFixed(2)} ر.ع</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span>اسم العميل:</span>
+              <span className="font-semibold">{customerName}</span>
+            </div>
+            
+            <div className="flex justify-between py-2">
+              <span>رقم الهاتف:</span>
+              <span className="font-semibold">{customerPhone}</span>
+            </div>
+            
+            <div className="flex justify-between py-2">
+              <span>الولاية:</span>
+              <span className="font-semibold">{wilayat}</span>
+            </div>
+            
+            <div className="flex justify-between py-2 border-t pt-3">
+              <span>رقم الطلب:</span>
+              <span className="font-semibold">{order?.orderId || '--'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
 };
 
 export default PaymentSuccess;
