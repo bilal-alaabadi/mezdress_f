@@ -6,6 +6,11 @@ import { useFetchProductByIdQuery } from '../../../redux/features/products/produ
 import { addToCart } from '../../../redux/features/cart/cartSlice';
 import ReviewsCard from '../reviews/ReviewsCard';
 
+const calculateDiscountPercentage = (currentPrice, oldPrice) => {
+    const discount = ((oldPrice - currentPrice) / oldPrice) * 100;
+    return Math.round(discount);
+};
+
 const SingleProduct = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -138,11 +143,6 @@ const SingleProduct = () => {
                         <div className='lg:w-1/2 w-full' dir='rtl'>
                             <div className='bg-white rounded-lg shadow-md p-6'>
                                 <h3 className='text-2xl md:text-3xl font-bold text-gray-800 mb-3'>{singleProduct.name}</h3>
-{/*                                 
-                                <div className="flex items-center mb-4">
-                                    <RatingStars rating={singleProduct.rating || 0} />
-                                    <span className="text-gray-500 text-sm mr-2">({productReviews.length} تقييمات)</span>
-                                </div> */}
                                 
                                 <div className="mb-6">
                                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 inline-block mb-4">
@@ -152,9 +152,12 @@ const SingleProduct = () => {
                                                 <s className="mr-2 text-gray-500 text-lg">.ر.ع {singleProduct.oldPrice}</s>
                                             )}
                                         </p>
+                                        {singleProduct.oldPrice && (
+                                            <div className="text-green-600 font-medium mt-1">
+                                                وفر {calculateDiscountPercentage(singleProduct.price, singleProduct.oldPrice)}%
+                                            </div>
+                                        )}
                                     </div>
-                                    
-                                    
                                 </div>
                                 
                                 <div className='mb-6'>
@@ -169,10 +172,12 @@ const SingleProduct = () => {
                                         <h4 className='text-sm font-semibold text-gray-500'>الفئة:</h4>
                                         <p className="text-gray-800 font-medium">{singleProduct.category}</p>
                                     </div>
-                                    {/* <div>
-                                        <h4 className='text-sm font-semibold text-gray-500'>العلامة التجارية:</h4>
-                                        <p className="text-gray-800 font-medium">{singleProduct.brand || 'غير محدد'}</p>
-                                    </div> */}
+                                    {singleProduct.gender && (
+                                        <div>
+                                            <h4 className='text-sm font-semibold text-gray-500'>النوع:</h4>
+                                            <p className="text-gray-800 font-medium">{singleProduct.gender}</p>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <button

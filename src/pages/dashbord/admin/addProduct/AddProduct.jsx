@@ -19,6 +19,7 @@ const categories = [
 ];
 
 const genderTypes = [
+    { label: 'اختر النوع', value: '', disabled: true },  // غير قابل للتحديد
     { label: 'رجالي', value: 'رجالي' },
     { label: 'نسائي', value: 'نسائي' },
 ];
@@ -30,6 +31,7 @@ const AddProduct = () => {
         name: '',
         category: '',
         price: '',
+        oldPrice: '',
         description: '',
         gender: ''
     });
@@ -40,10 +42,8 @@ const AddProduct = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // إظهار أو إخفاء حقل النوع حسب الفئة المختارة
         setShowGenderField(product.category === 'نظارات' || product.category === 'ساعات');
         
-        // إذا تم تغيير الفئة إلى غير نظارات أو ساعات، نمسح قيمة النوع
         if (!(product.category === 'نظارات' || product.category === 'ساعات')) {
             setProduct(prev => ({ ...prev, gender: '' }));
         }
@@ -60,7 +60,6 @@ const AddProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // التحقق من الحقول المطلوبة
         const requiredFields = {
             name: product.name,
             category: product.category,
@@ -69,51 +68,62 @@ const AddProduct = () => {
             image: image.length > 0
         };
         
-        // إذا كانت الفئة نظارات أو ساعات، نتحقق من وجود قيمة للنوع
         if (product.category === 'نظارات' || product.category === 'ساعات') {
-            requiredFields.gender = product.gender;
+            if (!product.gender) {
+                alert('الرجاء اختيار نوع المنتج (رجالي/نسائي)');
+                return;
+            }
         }
         
-        // التحقق من أن جميع الحقول المطلوبة مملوءة
         if (Object.values(requiredFields).some(field => !field)) {
-            alert('أملأ كل الحقول');
+            alert('الرجاء ملء جميع الحقول المطلوبة');
             return;
         }
 
         try {
-            await AddProduct({ ...product, image, author: user?._id }).unwrap();
-            alert('تمت أضافة المنتج بنجاح');
+            await AddProduct({ 
+                ...product, 
+                image, 
+                author: user?._id 
+            }).unwrap();
+            
+            alert('تمت إضافة المنتج بنجاح');
             setProduct({
                 name: '',
                 category: '',
                 price: '',
+                oldPrice: '',
                 description: '',
                 gender: ''
             });
             setImage([]);
             navigate("/shop");
         } catch (error) {
-            console.log("Failed to submit product", error);
+            console.error("فشل في إضافة المنتج:", error);
+            alert(`فشل في إضافة المنتج: ${error.data?.message || error.message}`);
         }
     };
 
     return (
         <div className="container mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-6">أضافة منتج جديد</h2>
+            <h2 className="text-2xl font-bold mb-6">إضافة منتج جديد</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <TextInput
-                    label="أسم المنتج"
+                    label="اسم المنتج"
                     name="name"
-                    placeholder="أكتب أسم المنتج"
+                    placeholder="أكتب اسم المنتج"
                     value={product.name}
                     onChange={handleChange}
+                    required
                 />
+                
                 <SelectInput
                     label="صنف المنتج"
                     name="category"
                     value={product.category}
                     onChange={handleChange}
                     options={categories}
+                    required
                 />
                 
                 {showGenderField && (
@@ -128,32 +138,54 @@ const AddProduct = () => {
                 )}
                 
                 <TextInput
-                    label="السعر"
+                    label="السعر الحالي"
                     name="price"
                     type="number"
                     placeholder="50"
                     value={product.price}
                     onChange={handleChange}
+                    required
                 />
+                
+                <TextInput
+                    label="السعر القديم (اختياري)"
+                    name="oldPrice"
+                    type="number"
+                    placeholder="100"
+                    value={product.oldPrice}
+                    onChange={handleChange}
+                />
+                
                 <UploadImage
                     name="image"
                     id="image"
                     setImage={setImage}
+                    required
                 />
+                
                 <div>
-                    <label htmlFor="description" className='block text-sm font-medium text-gray-700'>وصف المنتج</label>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                        وصف المنتج
+                    </label>
                     <textarea
                         name="description"
                         id="description"
-                        className='add-product-InputCSS'
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        rows={4}
                         value={product.description}
-                        placeholder='أكتب وصف المنتج'
+                        placeholder="أكتب وصف المنتج"
                         onChange={handleChange}
+                        required
                     ></textarea>
                 </div>
-                <div>
-                    <button type='submit' className='add-product-btn' disabled={isLoading}>
-                        {isLoading ? "جاري الإضافة..." : "أضف منتج"}
+                
+                <div className="pt-4">
+                    <button
+                        type="submit"
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "جاري الإضافة..." : "إضافة المنتج"}
                     </button>
                 </div>
             </form>

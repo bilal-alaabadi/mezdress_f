@@ -11,10 +11,10 @@ const ManageOrders = () => {
     const [viewOrder, setViewOrder] = useState(null);
     const [deleteOrder] = useDeleteOrderMutation();
 
-    const handleEditOrder = (order) => {
-        setSelectedOrder(order);
-        setIsModalOpen(true);
-    };
+    // const handleEditOrder = (order) => {
+    //     setSelectedOrder(order);
+    //     setIsModalOpen(true);
+    // };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -92,12 +92,12 @@ const ManageOrders = () => {
                                             >
                                                 عرض
                                             </button>
-                                            <button
+                                            {/* <button
                                                 className="text-green-500 hover:underline text-sm md:text-base"
                                                 onClick={() => handleEditOrder(order)}
                                             >
                                                 تعديل
-                                            </button>
+                                            </button> */}
                                             <button
                                                 className="text-red-500 hover:underline text-sm md:text-base"
                                                 onClick={() => handleDeleteOder(order?._id)}

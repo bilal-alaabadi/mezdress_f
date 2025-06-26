@@ -97,10 +97,10 @@ const ShopPage = () => {
                     </div>
 
                     <div className='flex-1'>
-                        <h3 className='text-xl font-medium mb-4'>
+                        {/* <h3 className='text-xl font-medium mb-4'>
                             عرض المنتجات من {startProduct} إلى {endProduct} من أصل {totalProducts} منتج
                         </h3>
-                        
+                         */}
                         {products.length > 0 ? (
                             <>
                                 <ProductCards products={products} />

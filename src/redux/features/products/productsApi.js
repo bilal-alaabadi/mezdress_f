@@ -7,61 +7,86 @@ const productsApi = createApi({
     baseUrl: `${getBaseUrl()}/api/products`,
     credentials: "include",
   }),
-  tagTypes: ["Products"],
+  tagTypes: ["Product", "ProductList"],
   endpoints: (builder) => ({
     fetchAllProducts: builder.query({
       query: ({
         category,
         gender,
+        minPrice,
+        maxPrice,
+        search,
+        sort = "createdAt:desc",
         page = 1,
         limit = 10,
       }) => {
         const params = {
           page: page.toString(),
           limit: limit.toString(),
+          sort,
         };
 
-        if (category) params.category = category;
+        if (category && category !== "الكل") params.category = category;
         if (gender) params.gender = gender;
+        if (minPrice) params.minPrice = minPrice;
+        if (maxPrice) params.maxPrice = maxPrice;
+        if (search) params.search = search;
 
         const queryParams = new URLSearchParams(params).toString();
-
         return `/?${queryParams}`;
       },
-      providesTags: ["Products"],
+      transformResponse: (response) => ({
+        products: response.products,
+        totalPages: response.totalPages,
+        totalProducts: response.totalProducts,
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ _id }) => ({ type: "Product", id: _id })),
+              "ProductList",
+            ]
+          : ["ProductList"],
     }),
 
     fetchProductById: builder.query({
       query: (id) => `/${id}`,
-      providesTags: (result, error, id) => [{ type: "Products", id }],
+      providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
 
-    AddProduct: builder.mutation({
+    addProduct: builder.mutation({
       query: (newProduct) => ({
         url: "/create-product",
         method: "POST",
         body: newProduct,
         credentials: "include",
       }),
-      invalidatesTags: ["Products"],
+      invalidatesTags: ["ProductList"],
     }),
 
     fetchRelatedProducts: builder.query({
       query: (id) => `/related/${id}`,
+      providesTags: (result, error, id) => [
+        { type: "Product", id },
+        "ProductList",
+      ],
     }),
 
     updateProduct: builder.mutation({
-      query: ({ id, body, headers }) => ({
-        url: `update-product/${id}`,
+    query: ({ id, body }) => ({
+        url: `/update-product/${id}`,
         method: "PATCH",
         body,
-        headers: {
-          ...headers,
-        },
         credentials: "include",
-      }),
-      invalidatesTags: ["Products"],
+        headers: {
+            // لا تضيف Content-Type هنا، لأن FormData سيقوم بتعيينه تلقائياً مع boundary
+        }
     }),
+    invalidatesTags: (result, error, { id }) => [
+        { type: "Product", id },
+        "ProductList",
+    ],
+}),
 
     deleteProduct: builder.mutation({
       query: (id) => ({
@@ -69,18 +94,35 @@ const productsApi = createApi({
         method: "DELETE",
         credentials: "include",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Products", id }],
+      invalidatesTags: (result, error, id) => [
+        { type: "Product", id },
+        "ProductList",
+      ],
+    }),
+
+    searchProducts: builder.query({
+      query: (searchTerm) => `/search?q=${searchTerm}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({ type: "Product", id: _id })),
+              "ProductList",
+            ]
+          : ["ProductList"],
     }),
   }),
 });
 
 export const {
   useFetchAllProductsQuery,
+  useLazyFetchAllProductsQuery,
   useFetchProductByIdQuery,
   useAddProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useFetchRelatedProductsQuery
+  useFetchRelatedProductsQuery,
+  useSearchProductsQuery,
+  useLazySearchProductsQuery,
 } = productsApi;
 
 export default productsApi;

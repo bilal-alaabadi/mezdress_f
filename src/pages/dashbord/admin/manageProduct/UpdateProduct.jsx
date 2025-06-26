@@ -31,6 +31,7 @@ const UpdateProduct = () => {
         name: '',
         category: '',
         price: '',
+        oldPrice: '',
         description: '',
         image: '',
         gender: ''
@@ -39,7 +40,7 @@ const UpdateProduct = () => {
     const [showGenderField, setShowGenderField] = useState(false);
     const {data: productData, isLoading: isProductLoading, error: fetchError, refetch} = useFetchProductByIdQuery(id);
     const [newImage, setNewImage] = useState(null);
-    const {name, category, description, image: imageURL, price, gender} = productData?.product || {};
+    const {name, category, description, image: imageURL, price, oldPrice, gender} = productData?.product || {};
 
     const [updateProduct, {isLoading: isUpdating, error: updateError}] = useUpdateProductMutation();
 
@@ -49,6 +50,7 @@ const UpdateProduct = () => {
                 name: name || '',
                 category: category || '',
                 price: price || '',
+                oldPrice: oldPrice || '',
                 description: description || '',
                 image: imageURL || '',
                 gender: gender || ''
@@ -77,69 +79,75 @@ const UpdateProduct = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        // التحقق من الحقول المطلوبة
-        const requiredFields = {
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            description: product.description
-        };
-        
-        // إذا كانت الفئة نظارات أو ساعات، نتحقق من وجود قيمة للنوع
-        if (product.category === 'نظارات' || product.category === 'ساعات') {
-            requiredFields.gender = product.gender;
-        }
-        
-        // التحقق من أن جميع الحقول المطلوبة مملوءة
-        if (Object.values(requiredFields).some(field => !field)) {
-            alert('أملأ كل الحقول المطلوبة');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('name', product.name);
-        formData.append('category', product.category);
-        formData.append('price', product.price);
-        formData.append('description', product.description);
-        if (product.gender) formData.append('gender', product.gender);
-        if(newImage) formData.append('image', newImage);
-        formData.append('author', user._id);
-
-        try {
-            await updateProduct({ 
-                id: id, 
-                body: formData
-            }).unwrap();
-            
-            alert('تم تحديث المنتج بنجاح');
-            await refetch();
-            navigate("/dashboard/manage-products");
-        } catch (error) {
-            console.error('Failed to update product:', error);
-            if(error.status === 401) {
-                alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
-                navigate('/login');
-            } else {
-                alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
-            }
-        }
+    // التحقق من الحقول المطلوبة
+    const requiredFields = {
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        description: product.description
     };
+    
+    if (product.category === 'نظارات' || product.category === 'ساعات') {
+        requiredFields.gender = product.gender;
+    }
+    
+    if (Object.values(requiredFields).some(field => !field)) {
+        alert('الرجاء ملء جميع الحقول المطلوبة');
+        return;
+    }
 
-    if(isProductLoading) return <div>تحميل ...</div>;
-    if(fetchError) return <div>Error fetching product!...</div>;
+    const formData = new FormData();
+    formData.append('name', product.name);
+    formData.append('category', product.category);
+    formData.append('price', product.price);
+    formData.append('oldPrice', product.oldPrice || ''); // تأكد من إرسال القيمة حتى لو كانت فارغة
+    formData.append('description', product.description);
+    if (product.gender) formData.append('gender', product.gender);
+    if(newImage) formData.append('image', newImage);
+    formData.append('author', user._id);
+
+    // Debug: عرض بيانات FormData قبل الإرسال
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+
+    try {
+        const result = await updateProduct({ 
+            id: id, 
+            body: formData
+        }).unwrap();
+        
+        console.log('نتيجة التحديث:', result); // Debug
+        alert('تم تحديث المنتج بنجاح');
+        await refetch();
+        navigate("/dashboard/manage-products");
+    } catch (error) {
+        console.error('فشل تحديث المنتج:', error);
+        if(error.status === 401) {
+            alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
+            navigate('/login');
+        } else {
+            alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
+        }
+    }
+};
+
+    if(isProductLoading) return <div>جاري التحميل ...</div>;
+    if(fetchError) return <div>خطأ في تحميل بيانات المنتج!</div>;
 
     return (
         <div className='container mx-auto mt-8'>
-            <h2 className='text-2xl font-bold mb-6'>تحديث المنتج </h2>
+            <h2 className='text-2xl font-bold mb-6'>تحديث المنتج</h2>
             <form onSubmit={handleSubmit} className='space-y-4'>
                 <TextInput
-                    label="أسم المنتج"
+                    label="اسم المنتج"
                     name="name"
-                    placeholder="أكتب أسم المنتج"
+                    placeholder="أكتب اسم المنتج"
                     value={product.name}
                     onChange={handleChange}
+                    required
                 />
                 <SelectInput
                     label="صنف المنتج"
@@ -147,6 +155,7 @@ const UpdateProduct = () => {
                     value={product.category}
                     onChange={handleChange}
                     options={categories}
+                    required
                 />
                 
                 {showGenderField && (
@@ -156,17 +165,29 @@ const UpdateProduct = () => {
                         value={product.gender}
                         onChange={handleChange}
                         options={genderTypes}
+                        required={showGenderField}
                     />
                 )}
                 
                 <TextInput
-                    label="السعر"
+                    label="السعر الحالي"
                     name="price"
                     type="number"
                     placeholder="50"
                     value={product.price}
                     onChange={handleChange}
+                    required
                 />
+
+                <TextInput
+                    label="السعر القديم (اختياري)"
+                    name="oldPrice"
+                    type="number"
+                    placeholder="100"
+                    value={product.oldPrice}
+                    onChange={handleChange}
+                />
+                
                 <UploadImage
                     name="image"
                     id="image"
@@ -174,24 +195,28 @@ const UpdateProduct = () => {
                     placeholder='صورة المنتج'
                     setImage={handleImageChange}
                 />
+                
                 <div>
                     <label htmlFor="description" className='block text-sm font-medium text-gray-700'>الوصف</label>
                     <textarea 
                         name="description" 
                         id="description"
-                        className='add-product-InputCSS'
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                         value={product.description}
                         placeholder='أكتب وصف المنتج'
                         onChange={handleChange}
+                        required
+                        rows={4}
                     ></textarea>
                 </div>
-                <div>
+                
+                <div className='flex justify-end'>
                     <button 
                         type='submit'
-                        className='add-product-btn'
+                        className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50'
                         disabled={isUpdating}
                     >
-                        {isUpdating ? 'جار التحديث...' : 'تحديث المنتج'}
+                        {isUpdating ? 'جاري التحديث...' : 'تحديث المنتج'}
                     </button>
                 </div>
             </form>
