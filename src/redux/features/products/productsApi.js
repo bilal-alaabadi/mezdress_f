@@ -72,21 +72,34 @@ const productsApi = createApi({
       ],
     }),
 
-    updateProduct: builder.mutation({
-    query: ({ id, body }) => ({
+     updateProduct: builder.mutation({
+      query: ({ id, body }) => ({
         url: `/update-product/${id}`,
         method: "PATCH",
         body,
         credentials: "include",
-        headers: {
-            // لا تضيف Content-Type هنا، لأن FormData سيقوم بتعيينه تلقائياً مع boundary
-        }
-    }),
-    invalidatesTags: (result, error, { id }) => [
+      }),
+      invalidatesTags: (result, error, { id }) => [
         { type: "Product", id },
         "ProductList",
-    ],
-}),
+      ],
+    }),
+
+    updateProductQuantity: builder.mutation({
+      query: ({ id, quantity }) => ({
+        url: `/update-product/${id}`,
+        method: "PATCH",
+        body: { quantity },
+        credentials: "include",
+        headers: {
+          'X-Quantity-Only': 'true'
+        }
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Product", id },
+        "ProductList",
+      ],
+    }),
 
     deleteProduct: builder.mutation({
       query: (id) => ({
@@ -119,6 +132,7 @@ export const {
   useFetchProductByIdQuery,
   useAddProductMutation,
   useUpdateProductMutation,
+  useUpdateProductQuantityMutation,
   useDeleteProductMutation,
   useFetchRelatedProductsQuery,
   useSearchProductsQuery,

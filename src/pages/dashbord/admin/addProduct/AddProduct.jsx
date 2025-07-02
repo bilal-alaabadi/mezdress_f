@@ -19,7 +19,7 @@ const categories = [
 ];
 
 const genderTypes = [
-    { label: 'اختر النوع', value: '', disabled: true },  // غير قابل للتحديد
+    { label: 'اختر النوع', value: '', disabled: true },
     { label: 'رجالي', value: 'رجالي' },
     { label: 'نسائي', value: 'نسائي' },
 ];
@@ -33,7 +33,8 @@ const AddProduct = () => {
         price: '',
         oldPrice: '',
         description: '',
-        gender: ''
+        gender: '',
+        quantity: 0
     });
     const [image, setImage] = useState([]);
     const [showGenderField, setShowGenderField] = useState(false);
@@ -65,7 +66,8 @@ const AddProduct = () => {
             category: product.category,
             price: product.price,
             description: product.description,
-            image: image.length > 0
+            image: image.length > 0,
+            quantity: product.quantity !== ''
         };
         
         if (product.category === 'نظارات' || product.category === 'ساعات') {
@@ -84,7 +86,8 @@ const AddProduct = () => {
             await AddProduct({ 
                 ...product, 
                 image, 
-                author: user?._id 
+                author: user?._id,
+                quantity: Number(product.quantity) // تأكد من أن الكمية رقمية
             }).unwrap();
             
             alert('تمت إضافة المنتج بنجاح');
@@ -94,7 +97,8 @@ const AddProduct = () => {
                 price: '',
                 oldPrice: '',
                 description: '',
-                gender: ''
+                gender: '',
+                quantity: 0
             });
             setImage([]);
             navigate("/shop");
@@ -154,6 +158,17 @@ const AddProduct = () => {
                     placeholder="100"
                     value={product.oldPrice}
                     onChange={handleChange}
+                />
+
+                <TextInput
+                    label="الكمية المتاحة"
+                    name="quantity"
+                    type="number"
+                    placeholder="10"
+                    value={product.quantity}
+                    onChange={handleChange}
+                    required
+                    min="0"
                 />
                 
                 <UploadImage

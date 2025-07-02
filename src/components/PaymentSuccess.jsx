@@ -38,12 +38,14 @@ const PaymentSuccess = () => {
     <>
       {/* رسالة النجاح */}
       {showSuccess && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">تم الطلب بنجاح!</h2>
-            <p className="text-gray-700">سيتم تحويلك إلى الصفحة الرئيسية خلال لحظات...</p>
-          </div>
+       <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-green-600 mb-4">تم الطلب بنجاح!</h2>
+          <p className="text-gray-700 mb-2">سيتم تحويلك إلى الصفحة الرئيسية خلال لحظات...</p>
+          <p className="text-gray-700">سوف يتم التواصل معك واتساب في أقرب وقت لتأكيد طلبك.</p>
         </div>
+      </div>
+
       )}
       
       <section className='section__container rounded p-6'>

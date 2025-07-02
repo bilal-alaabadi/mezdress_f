@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import {useFetchProductByIdQuery, useUpdateProductMutation} from '../../../../redux/features/products/productsApi'
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useFetchProductByIdQuery, useUpdateProductMutation, useUpdateProductQuantityMutation } from '../../../../redux/features/products/productsApi';
 import { useSelector } from 'react-redux';
 import TextInput from '../addProduct/TextInput';
 import SelectInput from '../addProduct/SelectInput';
@@ -34,28 +34,29 @@ const UpdateProduct = () => {
         oldPrice: '',
         description: '',
         image: '',
-        gender: ''
+        gender: '',
+        quantity: 0
     });
 
     const [showGenderField, setShowGenderField] = useState(false);
     const {data: productData, isLoading: isProductLoading, error: fetchError, refetch} = useFetchProductByIdQuery(id);
+    const [updateProduct] = useUpdateProductMutation();
+    const [updateProductQuantity] = useUpdateProductQuantityMutation();
     const [newImage, setNewImage] = useState(null);
-    const {name, category, description, image: imageURL, price, oldPrice, gender} = productData?.product || {};
-
-    const [updateProduct, {isLoading: isUpdating, error: updateError}] = useUpdateProductMutation();
 
     useEffect(() => {
-        if(productData){
+        if(productData?.product){
             setProduct({
-                name: name || '',
-                category: category || '',
-                price: price || '',
-                oldPrice: oldPrice || '',
-                description: description || '',
-                image: imageURL || '',
-                gender: gender || ''
+                name: productData.product.name || '',
+                category: productData.product.category || '',
+                price: productData.product.price || '',
+                oldPrice: productData.product.oldPrice || '',
+                description: productData.product.description || '',
+                image: productData.product.image || '',
+                gender: productData.product.gender || '',
+                quantity: productData.product.quantity || 0
             });
-            setShowGenderField(category === 'نظارات' || category === 'ساعات');
+            setShowGenderField(productData.product.category === 'نظارات' || productData.product.category === 'ساعات');
         }
     }, [productData]);
 
@@ -68,79 +69,85 @@ const UpdateProduct = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setProduct({
-            ...product,
-            [name]: value
-        });
+        setProduct(prev => ({ ...prev, [name]: value }));
+
+        // تحديث الكمية فور التغيير
+        if (name === 'quantity') {
+            handleQuantityUpdate(value);
+        }
     };
 
     const handleImageChange = (image) => {
         setNewImage(image);
     };
 
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // التحقق من الحقول المطلوبة
-    const requiredFields = {
-        name: product.name,
-        category: product.category,
-        price: product.price,
-        description: product.description
-    };
-    
-    if (product.category === 'نظارات' || product.category === 'ساعات') {
-        requiredFields.gender = product.gender;
-    }
-    
-    if (Object.values(requiredFields).some(field => !field)) {
-        alert('الرجاء ملء جميع الحقول المطلوبة');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('name', product.name);
-    formData.append('category', product.category);
-    formData.append('price', product.price);
-    formData.append('oldPrice', product.oldPrice || ''); // تأكد من إرسال القيمة حتى لو كانت فارغة
-    formData.append('description', product.description);
-    if (product.gender) formData.append('gender', product.gender);
-    if(newImage) formData.append('image', newImage);
-    formData.append('author', user._id);
-
-    // Debug: عرض بيانات FormData قبل الإرسال
-    for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
-
-    try {
-        const result = await updateProduct({ 
-            id: id, 
-            body: formData
-        }).unwrap();
-        
-        console.log('نتيجة التحديث:', result); // Debug
-        alert('تم تحديث المنتج بنجاح');
-        await refetch();
-        navigate("/dashboard/manage-products");
-    } catch (error) {
-        console.error('فشل تحديث المنتج:', error);
-        if(error.status === 401) {
-            alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
-            navigate('/login');
-        } else {
-            alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
+    const handleQuantityUpdate = async (newQuantity) => {
+        try {
+            await updateProductQuantity({
+                id,
+                quantity: Number(newQuantity)
+            }).unwrap();
+            await refetch();
+        } catch (error) {
+            console.error('فشل تحديث الكمية:', error);
+            alert('فشل تحديث الكمية: ' + (error.data?.message || error.message));
         }
-    }
-};
+    };
 
-    if(isProductLoading) return <div>جاري التحميل ...</div>;
-    if(fetchError) return <div>خطأ في تحميل بيانات المنتج!</div>;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // التحقق من الحقول المطلوبة للتحديث الكامل
+        const requiredFields = {
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            description: product.description
+        };
+        
+        if (product.category === 'نظارات' || product.category === 'ساعات') {
+            requiredFields.gender = product.gender;
+        }
+        
+        if (Object.values(requiredFields).some(field => !field)) {
+            alert('الرجاء ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', product.name);
+        formData.append('category', product.category);
+        formData.append('price', product.price);
+        formData.append('oldPrice', product.oldPrice || '');
+        formData.append('description', product.description);
+        formData.append('quantity', product.quantity);
+        if (product.gender) formData.append('gender', product.gender);
+        if (newImage) formData.append('image', newImage);
+        formData.append('author', user._id);
+
+        try {
+            await updateProduct({ id, body: formData }).unwrap();
+            alert('تم تحديث المنتج بنجاح');
+            await refetch();
+            navigate("/dashboard/manage-products");
+        } catch (error) {
+            console.error('فشل تحديث المنتج:', error);
+            if(error.status === 401) {
+                alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
+                navigate('/login');
+            } else {
+                alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
+            }
+        }
+    };
+
+    if(isProductLoading) return <div className="text-center py-8">جاري التحميل...</div>;
+    if(fetchError) return <div className="text-center py-8 text-red-500">خطأ في تحميل بيانات المنتج</div>;
 
     return (
-        <div className='container mx-auto mt-8'>
-            <h2 className='text-2xl font-bold mb-6'>تحديث المنتج</h2>
-            <form onSubmit={handleSubmit} className='space-y-4'>
+        <div className="container mx-auto mt-8 px-4">
+            <h2 className="text-2xl font-bold mb-6 text-right">تحديث المنتج</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <TextInput
                     label="اسم المنتج"
                     name="name"
@@ -149,6 +156,7 @@ const UpdateProduct = () => {
                     onChange={handleChange}
                     required
                 />
+                
                 <SelectInput
                     label="صنف المنتج"
                     name="category"
@@ -165,7 +173,7 @@ const UpdateProduct = () => {
                         value={product.gender}
                         onChange={handleChange}
                         options={genderTypes}
-                        required={showGenderField}
+                        required
                     />
                 )}
                 
@@ -178,7 +186,7 @@ const UpdateProduct = () => {
                     onChange={handleChange}
                     required
                 />
-
+                
                 <TextInput
                     label="السعر القديم (اختياري)"
                     name="oldPrice"
@@ -188,35 +196,47 @@ const UpdateProduct = () => {
                     onChange={handleChange}
                 />
                 
+                <TextInput
+                    label="الكمية المتاحة"
+                    name="quantity"
+                    type="number"
+                    placeholder="10"
+                    value={product.quantity}
+                    onChange={handleChange}
+                    min="0"
+                />
+                
                 <UploadImage
                     name="image"
                     id="image"
                     value={newImage || product.image}
-                    placeholder='صورة المنتج'
+                    placeholder="صورة المنتج"
                     setImage={handleImageChange}
                 />
                 
-                <div>
-                    <label htmlFor="description" className='block text-sm font-medium text-gray-700'>الوصف</label>
-                    <textarea 
-                        name="description" 
+                <div className="text-right">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                        وصف المنتج
+                    </label>
+                    <textarea
+                        name="description"
                         id="description"
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
                         value={product.description}
-                        placeholder='أكتب وصف المنتج'
+                        placeholder="أكتب وصف المنتج"
                         onChange={handleChange}
                         required
                         rows={4}
-                    ></textarea>
+                    />
                 </div>
                 
-                <div className='flex justify-end'>
-                    <button 
-                        type='submit'
-                        className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50'
-                        disabled={isUpdating}
+                <div className="flex justify-end pt-4">
+                    <button
+                        type="submit"
+                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                        disabled={isProductLoading}
                     >
-                        {isUpdating ? 'جاري التحديث...' : 'تحديث المنتج'}
+                        {isProductLoading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                     </button>
                 </div>
             </form>
