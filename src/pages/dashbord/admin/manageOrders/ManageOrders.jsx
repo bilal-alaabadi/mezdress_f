@@ -190,7 +190,6 @@ ${viewOrder.products?.map(p => `- ${p.name} (${p.quantity}x ${(p.price || 0).toF
                                 <h3 className="font-bold text-lg mb-3 border-b pb-2">معلومات العميل</h3>
                                 <div className="space-y-2">
                                     <p><strong>الاسم:</strong> {viewOrder.customerName || 'غير محدد'}</p>
-                                    <p><strong>البريد الإلكتروني:</strong> {viewOrder.email || 'غير محدد'}</p>
                                     <p><strong>رقم الهاتف:</strong> {viewOrder.customerPhone || 'غير محدد'}</p>
                                 </div>
                             </div>

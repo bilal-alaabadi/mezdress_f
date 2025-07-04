@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import RatingStars from '../../../components/RatingStars';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFetchProductByIdQuery } from '../../../redux/features/products/productsApi';
@@ -14,17 +14,15 @@ const calculateDiscountPercentage = (currentPrice, oldPrice) => {
 const SingleProduct = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const { data, error, isLoading } = useFetchProductByIdQuery(id);
-    const { user } = useSelector((state) => state.auth);
 
     const singleProduct = data?.product || {};
     const productReviews = data?.reviews || [];
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleAddToCart = (product) => {
-        if (!user) {
-            navigate('/login');
+        if (product.quantity <= 0) {
+            alert('نفذت الكمية من هذا المنتج');
             return;
         }
         dispatch(addToCart(product));
@@ -74,162 +72,158 @@ const SingleProduct = () => {
             </section>
 
             {/* Product Details Section */}
-<section className='py-8 md:py-12'>
-    <div className='container mx-auto px-4'>
-        <div className='flex flex-col lg:flex-row gap-8 md:gap-12'>
-            {/* Product Images */}
-            <div className='lg:w-1/2 w-full'>
-                <div className='relative bg-white rounded-lg shadow-md overflow-hidden p-4'>
-                    {singleProduct.image && singleProduct.image.length > 0 ? (
-                        <>
-                            <div className='relative aspect-square w-full'>
-                                <img
-                                    src={singleProduct.image[currentImageIndex]}
-                                    alt={singleProduct.name}
-                                    className='w-full h-full object-contain rounded-md'
-                                    onError={(e) => {
-                                        e.target.src = "https://via.placeholder.com/500";
-                                        e.target.alt = "Image not found";
-                                    }}
-                                />
-                            </div>
-                            
-                            {/* Navigation Arrows */}
-                            {singleProduct.image.length > 1 && (
-                                <>
-                                    <button
-                                        onClick={prevImage}
-                                        className='absolute left-4 top-1/2 transform -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors'
-                                    >
-                                        <i className="ri-arrow-left-s-line text-xl"></i>
-                                    </button>
-                                    <button
-                                        onClick={nextImage}
-                                        className='absolute right-4 top-1/2 transform -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors'
-                                    >
-                                        <i className="ri-arrow-right-s-line text-xl"></i>
-                                    </button>
-                                </>
-                            )}
-                            
-                            {/* Thumbnail Gallery */}
-                            {singleProduct.image.length > 1 && (
-                                <div className='flex justify-center mt-4 space-x-2 overflow-x-auto py-2'>
-                                    {singleProduct.image.map((img, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setCurrentImageIndex(index)}
-                                            className={`w-16 h-16 rounded-md overflow-hidden border-2 ${currentImageIndex === index ? 'border-primary' : 'border-transparent'}`}
-                                        >
+            <section className='py-8 md:py-12'>
+                <div className='container mx-auto px-4'>
+                    <div className='flex flex-col lg:flex-row gap-8 md:gap-12'>
+                        {/* Product Images */}
+                        <div className='lg:w-1/2 w-full'>
+                            <div className='relative bg-white rounded-lg shadow-md overflow-hidden p-4'>
+                                {singleProduct.image && singleProduct.image.length > 0 ? (
+                                    <>
+                                        <div className='relative aspect-square w-full'>
                                             <img
-                                                src={img}
-                                                alt={`Thumbnail ${index + 1}`}
-                                                className='w-full h-full object-cover'
+                                                src={singleProduct.image[currentImageIndex]}
+                                                alt={singleProduct.name}
+                                                className='w-full h-full object-contain rounded-md'
+                                                onError={(e) => {
+                                                    e.target.src = "https://via.placeholder.com/500";
+                                                    e.target.alt = "Image not found";
+                                                }}
                                             />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className='bg-gray-100 rounded-md aspect-square flex items-center justify-center'>
-                            <p className="text-gray-500">لا توجد صور متاحة</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Product Info */}
-            <div className='lg:w-1/2 w-full' dir='rtl'>
-                <div className='bg-white rounded-lg shadow-md p-6'>
-                    <h3 className='text-2xl md:text-3xl font-bold text-gray-800 mb-3'>{singleProduct.name}</h3>
-                    
-                    <div className="mb-6">
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 inline-block mb-4">
-                            <p className="text-xl md:text-2xl font-semibold text-amber-600">
-                                {singleProduct.price} .ر.ع
-                                {singleProduct.oldPrice && (
-                                    <s className="mr-2 text-gray-500 text-lg">.ر.ع {singleProduct.oldPrice}</s>
+                                        </div>
+                                        
+                                        {/* Navigation Arrows */}
+                                        {singleProduct.image.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={prevImage}
+                                                    className='absolute left-4 top-1/2 transform -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors'
+                                                >
+                                                    <i className="ri-arrow-left-s-line text-xl"></i>
+                                                </button>
+                                                <button
+                                                    onClick={nextImage}
+                                                    className='absolute right-4 top-1/2 transform -translate-y-1/2 bg-white text-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors'
+                                                >
+                                                    <i className="ri-arrow-right-s-line text-xl"></i>
+                                                </button>
+                                            </>
+                                        )}
+                                        
+                                        {/* Thumbnail Gallery */}
+                                        {singleProduct.image.length > 1 && (
+                                            <div className='flex justify-center mt-4 space-x-2 overflow-x-auto py-2'>
+                                                {singleProduct.image.map((img, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => setCurrentImageIndex(index)}
+                                                        className={`w-16 h-16 rounded-md overflow-hidden border-2 ${currentImageIndex === index ? 'border-primary' : 'border-transparent'}`}
+                                                    >
+                                                        <img
+                                                            src={img}
+                                                            alt={`Thumbnail ${index + 1}`}
+                                                            className='w-full h-full object-cover'
+                                                        />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className='bg-gray-100 rounded-md aspect-square flex items-center justify-center'>
+                                        <p className="text-gray-500">لا توجد صور متاحة</p>
+                                    </div>
                                 )}
-                            </p>
-                            {singleProduct.oldPrice && (
-                                <div className="text-green-600 font-medium mt-1">
-                                    وفر {calculateDiscountPercentage(singleProduct.price, singleProduct.oldPrice)}%
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    
-                    <div className='mb-6'>
-                        <h4 className='text-lg font-bold text-gray-800 mb-2'>الوصف:</h4>
-                        <p className="text-gray-600 leading-relaxed">
-                            {singleProduct.description}
-                        </p>
-                    </div>
-                    
-                    <div className='grid grid-cols-2 gap-4 mb-6'>
-                        <div>
-                            <h4 className='text-sm font-semibold text-gray-500'>الفئة:</h4>
-                            <p className="text-gray-800 font-medium">{singleProduct.category}</p>
-                        </div>
-                        {singleProduct.gender && (
-                            <div>
-                                <h4 className='text-sm font-semibold text-gray-500'>النوع:</h4>
-                                <p className="text-gray-800 font-medium">{singleProduct.gender}</p>
                             </div>
-                        )}
-                        <div>
-                            <h4 className='text-sm font-semibold text-gray-500'>الكمية المتاحة:</h4>
-                            <p className={`text-gray-800 font-medium ${
-                                singleProduct.quantity <= 0 ? 'text-red-600' : 
-                                singleProduct.quantity <= 5 ? 'text-yellow-600' : 'text-green-600'
-                            }`}>
-                                {singleProduct.quantity <= 0 ? 'نفذت الكمية' : `${singleProduct.quantity} قطع متبقية`}
-                            </p>
                         </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (singleProduct.quantity <= 0) {
-                                    alert('نفذت الكمية من هذا المنتج');
-                                    return;
-                                }
-                                handleAddToCart(singleProduct);
-                            }}
-                            className={`px-8 py-3 text-white rounded-md font-medium transition-colors shadow-md ${
-                                singleProduct.quantity <= 0 ? 
-                                'bg-gray-400 cursor-not-allowed' : 
-                                'bg-[#d3ae27] hover:bg-[#c19e22]'
-                            }`}
-                            disabled={singleProduct.quantity <= 0}
-                        >
-                            {singleProduct.quantity <= 0 ? 'نفذت الكمية' : 'إضافة إلى السلة'}
-                        </button>
 
-                        {singleProduct.quantity > 0 && singleProduct.quantity <= 5 && (
-                            <span className="text-yellow-600 text-sm font-medium">
-                                كمية محدودة! بقي {singleProduct.quantity} فقط
-                            </span>
-                        )}
+                        {/* Product Info */}
+                        <div className='lg:w-1/2 w-full' dir='rtl'>
+                            <div className='bg-white rounded-lg shadow-md p-6'>
+                                <h3 className='text-2xl md:text-3xl font-bold text-gray-800 mb-3'>{singleProduct.name}</h3>
+                                
+                                <div className="mb-6">
+                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 inline-block mb-4">
+                                        <p className="text-xl md:text-2xl font-semibold text-amber-600">
+                                            {singleProduct.price} .ر.ع
+                                            {singleProduct.oldPrice && (
+                                                <s className="mr-2 text-gray-500 text-lg">.ر.ع {singleProduct.oldPrice}</s>
+                                            )}
+                                        </p>
+                                        {singleProduct.oldPrice && (
+                                            <div className="text-green-600 font-medium mt-1">
+                                                وفر {calculateDiscountPercentage(singleProduct.price, singleProduct.oldPrice)}%
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className='mb-6'>
+                                    <h4 className='text-lg font-bold text-gray-800 mb-2'>الوصف:</h4>
+                                    <p className="text-gray-600 leading-relaxed">
+                                        {singleProduct.description}
+                                    </p>
+                                </div>
+                                
+                                <div className='grid grid-cols-2 gap-4 mb-6'>
+                                    <div>
+                                        <h4 className='text-sm font-semibold text-gray-500'>الفئة:</h4>
+                                        <p className="text-gray-800 font-medium">{singleProduct.category}</p>
+                                    </div>
+                                    {singleProduct.gender && (
+                                        <div>
+                                            <h4 className='text-sm font-semibold text-gray-500'>النوع:</h4>
+                                            <p className="text-gray-800 font-medium">{singleProduct.gender}</p>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <h4 className='text-sm font-semibold text-gray-500'>الكمية المتاحة:</h4>
+                                        <p className={`text-gray-800 font-medium ${
+                                            singleProduct.quantity <= 0 ? 'text-red-600' : 
+                                            singleProduct.quantity <= 5 ? 'text-yellow-600' : 'text-green-600'
+                                        }`}>
+                                            {singleProduct.quantity <= 0 ? 'نفذت الكمية' : `${singleProduct.quantity} قطع متبقية`}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAddToCart(singleProduct);
+                                        }}
+                                        className={`px-8 py-3 text-white rounded-md font-medium transition-colors shadow-md ${
+                                            singleProduct.quantity <= 0 ? 
+                                            'bg-gray-400 cursor-not-allowed' : 
+                                            'bg-[#d3ae27] hover:bg-[#c19e22]'
+                                        }`}
+                                        disabled={singleProduct.quantity <= 0}
+                                    >
+                                        {singleProduct.quantity <= 0 ? 'نفذت الكمية' : 'إضافة إلى السلة'}
+                                    </button>
+
+                                    {singleProduct.quantity > 0 && singleProduct.quantity <= 5 && (
+                                        <span className="text-yellow-600 text-sm font-medium">
+                                            كمية محدودة! بقي {singleProduct.quantity} فقط
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
 
-{/* Reviews Section */}
-<section className='py-8 md:py-12 bg-gray-50' dir='rtl'>
-    <div className='container mx-auto px-4'>
-        <div className='bg-white rounded-lg shadow-md p-6'>
-            <h3 className='text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-2'>تقييمات العملاء</h3>
-            <ReviewsCard productReviews={productReviews} />
-        </div>
-    </div>
-</section>
+            {/* Reviews Section */}
+            <section className='py-8 md:py-12 bg-gray-50' dir='rtl'>
+                <div className='container mx-auto px-4'>
+                    <div className='bg-white rounded-lg shadow-md p-6'>
+                        <h3 className='text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-2'>تقييمات العملاء</h3>
+                        <ReviewsCard productReviews={productReviews} />
+                    </div>
+                </div>
+            </section>
         </>
     );
 };
