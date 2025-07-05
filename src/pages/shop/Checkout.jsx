@@ -42,12 +42,13 @@ const Checkout = () => {
           name: product.name,
           price: product.price,
           quantity: product.quantity,
-          image: Array.isArray(product.image) ? product.image[0] : product.image
+          image: Array.isArray(product.image) ? product.image[0] : product.image,
+          ...(product.selectedSize && { selectedSize: product.selectedSize })
         })),
         customerName,
         customerPhone,
         wilayat,
-        email: user?.email || '',
+        email: user?.email || 'no-email-provided@example.com', // Default email if not provided
         notes,
         amount: totalPrice + shippingFee,
         shippingFee

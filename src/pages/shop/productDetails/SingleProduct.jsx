@@ -15,6 +15,7 @@ const SingleProduct = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const { data, error, isLoading } = useFetchProductByIdQuery(id);
+    const { products: cartItems } = useSelector((state) => state.cart);
 
     const singleProduct = data?.product || {};
     const productReviews = data?.reviews || [];
@@ -25,6 +26,14 @@ const SingleProduct = () => {
             alert('نفذت الكمية من هذا المنتج');
             return;
         }
+        
+        // التحقق من وجود المنتج في السلة بالفعل وكميته
+        const cartItem = cartItems.find(item => item._id === product._id);
+        if (cartItem && cartItem.quantity >= product.quantity) {
+            alert('لقد وصلت إلى الحد الأقصى للكمية المتاحة لهذا المنتج');
+            return;
+        }
+        
         dispatch(addToCart(product));
     };
 

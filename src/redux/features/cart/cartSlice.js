@@ -12,15 +12,17 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const isExist = state.products.find(
-        (product) => product._id === action.payload._id
-      );
+      const product = action.payload;
+      const isExist = state.products.find((p) => p._id === product._id);
 
       if (!isExist) {
+        if (product.quantity <= 0) return;
+        
         state.products.push({ 
-          ...action.payload, 
+          ...product, 
           quantity: 1,
-          url: `/product/${action.payload._id}`
+          maxQuantity: product.quantity, // حفظ الكمية الأصلية للمنتج
+          url: `/product/${product._id}`
         });
       }
 
@@ -31,7 +33,10 @@ const cartSlice = createSlice({
       state.products = state.products.map((product) => {
         if (product._id === action.payload.id) {
           if (action.payload.type === 'increment') {
-            product.quantity += 1;
+            // التحقق من أن الكمية الجديدة لا تتجاوز الكمية المتاحة
+            if (product.quantity < product.maxQuantity) {
+              product.quantity += 1;
+            }
           } else if (action.payload.type === 'decrement' && product.quantity > 1) {
             product.quantity -= 1;
           }
