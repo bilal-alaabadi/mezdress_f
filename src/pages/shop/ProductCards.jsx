@@ -12,7 +12,7 @@ const ProductCards = ({ products }) => {
     };
 
     return (
-        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' dir='rtl'>
             {products.map((product, index) => (
                 <div key={index} className='product__card group relative'>
                     {product.oldPrice && (
@@ -21,13 +21,28 @@ const ProductCards = ({ products }) => {
                         </div>
                     )}
                     
+                    {/* مؤشر الكمية المتبقية - جديد */}
+                    <div className="absolute top-3 right-3 z-10">
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                            product.quantity <= 0 
+                                ? 'bg-red-100 text-red-800'
+                                : product.quantity <= 5 
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-green-100 text-green-800'
+                        }`}>
+                            الكمية: {product.quantity}
+                        </span>
+                    </div>
+
                     <div className='relative'>
                         <Link to={`/shop/${product._id}`}>
                             <div className="aspect-square overflow-hidden">
                                 <img
                                     src={product.image[0]}
                                     alt="product image"
-                                    className='w-full h-full object-cover hover:scale-105 transition-all duration-300'
+                                    className={`w-full h-full object-cover hover:scale-105 transition-all duration-300 ${
+                                        product.quantity <= 0 ? 'opacity-70' : ''
+                                    }`}
                                     onError={(e) => {
                                         e.target.src = "https://via.placeholder.com/300";
                                         e.target.alt = "Image not found";
@@ -43,6 +58,7 @@ const ProductCards = ({ products }) => {
                                     handleAddToCart(product);
                                 }}
                                 className="bg-[#CEAE7A] p-1.5 text-white hover:bg-black rounded-full transition duration-300"
+                                disabled={product.quantity <= 0} // تعطيل الزر إذا نفدت الكمية
                             >
                                 <i className="ri-shopping-cart-2-line"></i>
                             </button>
@@ -53,7 +69,9 @@ const ProductCards = ({ products }) => {
                     <div className='product__card__content text-center mt-4'>
                         <h4 className="text-lg font-semibold">{product.name}</h4>
                         <div className="flex justify-center items-center gap-2 mt-2">
-                            <p className="text-[#CEAE7A] font-medium">
+                            <p className={`font-medium ${
+                                product.quantity <= 0 ? 'text-gray-400' : 'text-[#CEAE7A]'
+                            }`}>
                                 {product.price} ر.ع
                             </p>
                             {product.oldPrice && (
