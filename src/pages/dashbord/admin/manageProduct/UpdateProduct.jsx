@@ -1,242 +1,295 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useFetchProductByIdQuery, useUpdateProductMutation, useUpdateProductQuantityMutation } from '../../../../redux/features/products/productsApi';
 import { useSelector } from 'react-redux';
-import TextInput from '../addProduct/TextInput';
-import SelectInput from '../addProduct/SelectInput';
-import UploadImage from '../addProduct/UploadImage';
-
-const categories = [
-    { label: 'الكل', value: 'الكل' },
-    { label: 'نظارات', value: 'نظارات' },
-    { label: 'محافظ', value: 'محافظ' },
-    { label: 'ساعات', value: 'ساعات' },
-    { label: 'غتر', value: 'غتر' },
-    { label: 'اقلام', value: 'اقلام' },
-    { label: 'بوكسات الشهر', value: 'بوكسات الشهر' },
-    { label: 'أقمشة', value: 'أقمشة'},
-    { label: 'مسباح', value: 'مسباح'},
-];
-
-const genderTypes = [
-    { label: 'رجالي', value: 'رجالي' },
-    { label: 'نسائي', value: 'نسائي' },
-];
+import { 
+  useFetchProductByIdQuery, 
+  useUpdateProductMutation 
+} from '../../../../redux/features/products/productsApi';
+import TextInput from '../../../dashbord/admin/addProduct/TextInput';
+import UploadImage from '../../../dashbord/admin/addProduct/UploadImage';
+import { toast } from 'react-toastify';
 
 const UpdateProduct = () => {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
-    const {user} = useSelector((state) => state.auth);
+    const { user } = useSelector((state) => state.auth);
+
     const [product, setProduct] = useState({
         name: '',
-        category: '',
+        date: '',
+        deliveryDate: '',
+        returnDate: '',
+        deliveryLocation: '',
         price: '',
-        oldPrice: '',
+        remainingAmount: '',
         description: '',
-        image: '',
-        gender: '',
-        quantity: 0
+        image: []
     });
 
-    const [showGenderField, setShowGenderField] = useState(false);
-    const {data: productData, isLoading: isProductLoading, error: fetchError, refetch} = useFetchProductByIdQuery(id);
-    const [updateProduct] = useUpdateProductMutation();
-    const [updateProductQuantity] = useUpdateProductQuantityMutation();
-    const [newImage, setNewImage] = useState(null);
+    const [newImages, setNewImages] = useState([]);
+    const [removedImages, setRemovedImages] = useState([]);
+    
+    const { data: productData, isLoading: isProductLoading, error: fetchError } = useFetchProductByIdQuery(id);
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
     useEffect(() => {
-        if(productData?.product){
+        if (productData?.product) {
+            const { product } = productData;
             setProduct({
-                name: productData.product.name || '',
-                category: productData.product.category || '',
-                price: productData.product.price || '',
-                oldPrice: productData.product.oldPrice || '',
-                description: productData.product.description || '',
-                image: productData.product.image || '',
-                gender: productData.product.gender || '',
-                quantity: productData.product.quantity || 0
+                name: product.name || '',
+                date: product.date?.split('T')[0] || '',
+                deliveryDate: product.deliveryDate?.split('T')[0] || '',
+                returnDate: product.returnDate?.split('T')[0] || '',
+                deliveryLocation: product.deliveryLocation || '',
+                price: product.price || '',
+                remainingAmount: product.remainingAmount || '',
+                description: product.description || '',
+                image: product.image || []
             });
-            setShowGenderField(productData.product.category === 'نظارات' || productData.product.category === 'ساعات');
         }
     }, [productData]);
 
-    useEffect(() => {
-        setShowGenderField(product.category === 'نظارات' || product.category === 'ساعات');
-        if (!(product.category === 'نظارات' || product.category === 'ساعات')) {
-            setProduct(prev => ({ ...prev, gender: '' }));
-        }
-    }, [product.category]);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setProduct(prev => ({ ...prev, [name]: value }));
-
-        // تحديث الكمية فور التغيير
-        if (name === 'quantity') {
-            handleQuantityUpdate(value);
-        }
+        setProduct(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    const handleImageChange = (image) => {
-        setNewImage(image);
+    const handleImageChange = (images) => {
+        setNewImages(images);
     };
 
-    const handleQuantityUpdate = async (newQuantity) => {
-        try {
-            await updateProductQuantity({
-                id,
-                quantity: Number(newQuantity)
-            }).unwrap();
-            await refetch();
-        } catch (error) {
-            console.error('فشل تحديث الكمية:', error);
-            alert('فشل تحديث الكمية: ' + (error.data?.message || error.message));
-        }
+    const handleRemoveImage = (imageUrl) => {
+        setRemovedImages(prev => [...prev, imageUrl]);
+        setProduct(prev => ({
+            ...prev,
+            image: prev.image.filter(img => img !== imageUrl)
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // التحقق من الحقول المطلوبة للتحديث الكامل
-        const requiredFields = {
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            description: product.description
-        };
         
-        if (product.category === 'نظارات' || product.category === 'ساعات') {
-            requiredFields.gender = product.gender;
-        }
-        
-        if (Object.values(requiredFields).some(field => !field)) {
-            alert('الرجاء ملء جميع الحقول المطلوبة');
+        if (!product.name || !product.price || !product.description || 
+            !product.date || !product.deliveryDate || !product.returnDate || 
+            !product.deliveryLocation || !product.remainingAmount) {
+            toast.error('الرجاء تعبئة جميع الحقول المطلوبة', {
+                position: "top-center",
+                autoClose: 3000
+            });
             return;
         }
 
         const formData = new FormData();
+        
         formData.append('name', product.name);
-        formData.append('category', product.category);
-        formData.append('price', product.price);
-        formData.append('oldPrice', product.oldPrice || '');
         formData.append('description', product.description);
-        formData.append('quantity', product.quantity);
-        if (product.gender) formData.append('gender', product.gender);
-        if (newImage) formData.append('image', newImage);
+        formData.append('date', product.date);
+        formData.append('deliveryDate', product.deliveryDate);
+        formData.append('returnDate', product.returnDate);
+        formData.append('deliveryLocation', product.deliveryLocation);
+        formData.append('price', product.price);
+        formData.append('remainingAmount', product.remainingAmount);
         formData.append('author', user._id);
 
+        if (newImages.length > 0) {
+            newImages.forEach(image => {
+                formData.append('images', image);
+            });
+        }
+
+        product.image.forEach(img => {
+            formData.append('existingImages', img);
+        });
+
+        removedImages.forEach(img => {
+            formData.append('removedImages', img);
+        });
+
         try {
-            await updateProduct({ id, body: formData }).unwrap();
-            alert('تم تحديث المنتج بنجاح');
-            await refetch();
-            navigate("/dashboard/manage-products");
+            const result = await updateProduct({ 
+                id, 
+                formData 
+            }).unwrap();
+            
+            toast.success('تم تحديث المنتج بنجاح', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+
+            setTimeout(() => {
+                navigate("/Shop", { 
+                    state: { refresh: true },
+                    replace: true
+                });
+                window.location.reload();
+            }, 2000);
+            
         } catch (error) {
             console.error('فشل تحديث المنتج:', error);
-            if(error.status === 401) {
-                alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
-                navigate('/login');
-            } else {
-                alert('فشل تحديث المنتج: ' + (error.data?.message || error.message));
-            }
+            toast.error(`فشل تحديث المنتج: ${error.data?.message || error.message}`, {
+                position: "top-center",
+                autoClose: 5000
+            });
         }
     };
 
-    if(isProductLoading) return <div className="text-center py-8">جاري التحميل...</div>;
-    if(fetchError) return <div className="text-center py-8 text-red-500">خطأ في تحميل بيانات المنتج</div>;
+    if (isProductLoading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (fetchError) {
+        return (
+            <div className="text-center py-8 text-red-600">
+                حدث خطأ أثناء جلب بيانات المنتج: {fetchError.data?.message || fetchError.message}
+            </div>
+        );
+    }
 
     return (
-        <div className="container mx-auto mt-8 px-4">
-            <h2 className="text-2xl font-bold mb-6 text-right">تحديث المنتج</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <TextInput
-                    label="اسم المنتج"
-                    name="name"
-                    placeholder="أكتب اسم المنتج"
-                    value={product.name}
-                    onChange={handleChange}
-                    required
-                />
-                
-                <SelectInput
-                    label="صنف المنتج"
-                    name="category"
-                    value={product.category}
-                    onChange={handleChange}
-                    options={categories}
-                    required
-                />
-                
-                {showGenderField && (
-                    <SelectInput
-                        label="نوع المنتج"
-                        name="gender"
-                        value={product.gender}
+        <div className="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-md max-w-4xl">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">تحديث المنتج</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* اسم المنتج */}
+                    <TextInput
+                        label="اسم المنتج"
+                        name="name"
+                        placeholder="أدخل اسم المنتج"
+                        value={product.name}
                         onChange={handleChange}
-                        options={genderTypes}
                         required
                     />
-                )}
-                
-                <TextInput
-                    label="السعر الحالي"
-                    name="price"
-                    type="number"
-                    placeholder="50"
-                    value={product.price}
-                    onChange={handleChange}
-                    required
-                />
-                
-                <TextInput
-                    label="السعر القديم (اختياري)"
-                    name="oldPrice"
-                    type="number"
-                    placeholder="100"
-                    value={product.oldPrice}
-                    onChange={handleChange}
-                />
-                
-                <TextInput
-                    label="الكمية المتاحة"
-                    name="quantity"
-                    type="number"
-                    placeholder="10"
-                    value={product.quantity}
-                    onChange={handleChange}
-                    min="0"
-                />
-                
-                <UploadImage
-                    name="image"
-                    id="image"
-                    value={newImage || product.image}
-                    placeholder="صورة المنتج"
-                    setImage={handleImageChange}
-                />
-                
-                <div className="text-right">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+
+                    {/* التاريخ */}
+                    <TextInput
+                        label="التاريخ"
+                        name="date"
+                        type="date"
+                        value={product.date}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    {/* تاريخ الاستلام */}
+                    <TextInput
+                        label="تاريخ الاستلام"
+                        name="deliveryDate"
+                        type="date"
+                        value={product.deliveryDate}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    {/* تاريخ الإرجاع */}
+                    <TextInput
+                        label="تاريخ الإرجاع"
+                        name="returnDate"
+                        type="date"
+                        value={product.returnDate}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    {/* مكان التسليم */}
+                    <TextInput
+                        label="مكان التسليم"
+                        name="deliveryLocation"
+                        placeholder="أدخل مكان التسليم"
+                        value={product.deliveryLocation}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    {/* السعر */}
+                    <TextInput
+                        label="السعر"
+                        name="price"
+                        type="number"
+                        placeholder="أدخل السعر"
+                        value={product.price}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    {/* المبلغ المتبقي */}
+                    <TextInput
+                        label="المبلغ المتبقي"
+                        name="remainingAmount"
+                        type="number"
+                        placeholder="أدخل المبلغ المتبقي"
+                        value={product.remainingAmount}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                {/* وصف المنتج */}
+                <div className="space-y-2">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                         وصف المنتج
                     </label>
                     <textarea
                         name="description"
                         id="description"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows="5"
                         value={product.description}
-                        placeholder="أكتب وصف المنتج"
+                        placeholder="أدخل وصفًا تفصيليًا للمنتج"
                         onChange={handleChange}
                         required
-                        rows={4}
                     />
                 </div>
-                
+
+                {/* تحميل الصور */}
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                        صور المنتج
+                    </label>
+                    <UploadImage
+                        name="images"
+                        id="images"
+                        setImage={handleImageChange}
+                        existingImages={product.image}
+                        onRemoveImage={handleRemoveImage}
+                        multiple
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                        يمكنك تحميل عدة صور (الحد الأقصى 5 صور)
+                    </p>
+                </div>
+
+                {/* زر التحديث */}
                 <div className="flex justify-end pt-4">
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-                        disabled={isProductLoading}
+                        className={`px-6 py-2 rounded-md text-white font-medium ${
+                            isUpdating 
+                                ? 'bg-blue-400 cursor-not-allowed' 
+                                : 'bg-blue-600 hover:bg-blue-700'
+                        } transition-colors`}
+                        disabled={isUpdating}
                     >
-                        {isProductLoading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                        {isUpdating ? (
+                            <span className="flex items-center">
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                جاري التحديث...
+                            </span>
+                        ) : 'تحديث المنتج'}
                     </button>
                 </div>
             </form>

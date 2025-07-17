@@ -27,7 +27,7 @@ const Login = () => {
         // console.log(response)
         const {token, user} = response;
         disptach(setUser({user}))
-        alert("نجح تسجيل الدخول");
+        alert("Login successful");
         navigate("/")
        } catch (error) {
         setMessage("Please provide a valid email and password")
@@ -40,7 +40,7 @@ const Login = () => {
         <h2 className='text-2xl font-semibold pt-5'>يرجى تسجيل الدخول</h2>
         <form onSubmit={handleLogin} className='space-y-5 max-w-sm mx-auto pt-8'>
             <input
-                type="email" 
+                type="email"
                 name="email"
                 id="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -61,7 +61,7 @@ const Login = () => {
 
             <button
                 type='submit'
-                className='w-full mt-5 bg-[#CEAE7A] text-white hover:bg-indigo-500 font-medium py-3 rounded-md'
+                className='w-full mt-5 bg-primary text-white hover:bg-indigo-500 font-medium py-3 rounded-md'
             >
                 تسجيل الدخول
             </button>

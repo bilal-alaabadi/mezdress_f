@@ -1,54 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import TextInput from './TextInput';
-import SelectInput from './SelectInput';
 import UploadImage from './UploadImage';
 import { useAddProductMutation } from '../../../../redux/features/products/productsApi';
 import { useNavigate } from 'react-router-dom';
-
-const categories = [
-    { label: 'الكل', value: 'الكل' },
-    { label: 'نظارات', value: 'نظارات' },
-    { label: 'محافظ', value: 'محافظ' },
-    { label: 'ساعات', value: 'ساعات' },
-    { label: 'غتر', value: 'غتر' },
-    { label: 'اقلام', value: 'اقلام' },
-    { label: 'بوكسات الشهر', value: 'بوكسات الشهر' },
-    { label: 'أقمشة', value: 'أقمشة'},
-    { label: 'مسباح', value: 'مسباح'},
-];
-
-const genderTypes = [
-    { label: 'اختر النوع', value: '', disabled: true },
-    { label: 'رجالي', value: 'رجالي' },
-    { label: 'نسائي', value: 'نسائي' },
-];
 
 const AddProduct = () => {
     const { user } = useSelector((state) => state.auth);
 
     const [product, setProduct] = useState({
         name: '',
-        category: '',
+        date: '',
+        deliveryDate: '',
+        returnDate: '',
+        deliveryLocation: '',
         price: '',
-        oldPrice: '',
-        description: '',
-        gender: '',
-        quantity: 0
+        remainingAmount: '',
+        description: ''
     });
     const [image, setImage] = useState([]);
-    const [showGenderField, setShowGenderField] = useState(false);
 
     const [AddProduct, { isLoading, error }] = useAddProductMutation();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        setShowGenderField(product.category === 'نظارات' || product.category === 'ساعات');
-        
-        if (!(product.category === 'نظارات' || product.category === 'ساعات')) {
-            setProduct(prev => ({ ...prev, gender: '' }));
-        }
-    }, [product.category]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -60,147 +33,155 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        const requiredFields = {
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            description: product.description,
-            image: image.length > 0,
-            quantity: product.quantity !== ''
-        };
-        
-        if (product.category === 'نظارات' || product.category === 'ساعات') {
-            if (!product.gender) {
-                alert('الرجاء اختيار نوع المنتج (رجالي/نسائي)');
-                return;
-            }
-        }
-        
-        if (Object.values(requiredFields).some(field => !field)) {
-            alert('الرجاء ملء جميع الحقول المطلوبة');
+        if (!product.name || !product.price || !product.description || 
+            !product.date || !product.deliveryDate || !product.returnDate || 
+            !product.deliveryLocation || !product.remainingAmount || 
+            image.length === 0) {
+            alert('أملأ كل الحقول');
             return;
         }
 
         try {
-            await AddProduct({ 
-                ...product, 
-                image, 
-                author: user?._id,
-                quantity: Number(product.quantity) // تأكد من أن الكمية رقمية
-            }).unwrap();
-            
-            alert('تمت إضافة المنتج بنجاح');
+            await AddProduct({ ...product, image, author: user?._id }).unwrap();
+            alert('تمت أضافة الفستان بنجاح');
             setProduct({
                 name: '',
-                category: '',
+                date: '',
+                deliveryDate: '',
+                returnDate: '',
+                deliveryLocation: '',
                 price: '',
-                oldPrice: '',
-                description: '',
-                gender: '',
-                quantity: 0
+                remainingAmount: '',
+                description: ''
             });
             setImage([]);
             navigate("/shop");
         } catch (error) {
-            console.error("فشل في إضافة المنتج:", error);
-            alert(`فشل في إضافة المنتج: ${error.data?.message || error.message}`);
+            console.log("Failed to submit product", error);
         }
     };
 
     return (
-        <div className="container mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-6">إضافة منتج جديد</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <TextInput
-                    label="اسم المنتج"
-                    name="name"
-                    placeholder="أكتب اسم المنتج"
-                    value={product.name}
-                    onChange={handleChange}
-                    required
-                />
+        <div className="container mx-auto mt-8 p-4 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-6 text-center">إضافة فستان جديد</h2>
+            <form onSubmit={handleSubmit}>
+                <table className="w-full border-collapse">
+                    <tbody>
+                        {/* الصف الأول */}
+                        <tr className="border-b">
+                            <td className="py-4 px-2 w-1/2">
+                                <TextInput
+                                    label="اسم الفستان"
+                                    name="name"
+                                    placeholder="أكتب اسم الفستان"
+                                    value={product.name}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                            <td className="py-4 px-2 w-1/2">
+                                <TextInput
+                                    label="التاريخ"
+                                    name="date"
+                                    type="date"
+                                    value={product.date}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                        </tr>
+                        
+                        {/* الصف الثاني */}
+                        <tr className="border-b">
+                            <td className="py-4 px-2">
+                                <TextInput
+                                    label="تاريخ الاستلام"
+                                    name="deliveryDate"
+                                    type="date"
+                                    value={product.deliveryDate}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                            <td className="py-4 px-2">
+                                <TextInput
+                                    label="تاريخ الترجيع"
+                                    name="returnDate"
+                                    type="date"
+                                    value={product.returnDate}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                        </tr>
+                        
+                        {/* الصف الثالث */}
+                        <tr className="border-b">
+                            <td className="py-4 px-2">
+                                <TextInput
+                                    label="مكان الاستلام"
+                                    name="deliveryLocation"
+                                    placeholder="مكان استلام الفستان"
+                                    value={product.deliveryLocation}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                            <td className="py-4 px-2">
+                                <TextInput
+                                    label="السعر"
+                                    name="price"
+                                    type="number"
+                                    placeholder="السعر الكامل"
+                                    value={product.price}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                        </tr>
+                        
+                        {/* الصف الرابع */}
+                        <tr className="border-b">
+                            <td className="py-4 px-2">
+                                <TextInput
+                                    label="الباقي"
+                                    name="remainingAmount"
+                                    type="number"
+                                    placeholder="المبلغ المتبقي"
+                                    value={product.remainingAmount}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                            <td className="py-4 px-2">
+                                <UploadImage
+                                    name="image"
+                                    id="image"
+                                    setImage={setImage}
+                                />
+                            </td>
+                        </tr>
+                        
+                        {/* الصف الخامس - الوصف (يشغل عمودين) */}
+                        <tr>
+                            <td colSpan="2" className="py-4 px-2">
+                                <div>
+                                    <label htmlFor="description" className='block text-sm font-medium text-gray-700'>وصف الفستان</label>
+                                    <textarea
+                                        name="description"
+                                        id="description"
+                                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                        rows="4"
+                                        value={product.description}
+                                        placeholder='أكتب وصفًا للفستان'
+                                        onChange={handleChange}
+                                    ></textarea>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 
-                <SelectInput
-                    label="صنف المنتج"
-                    name="category"
-                    value={product.category}
-                    onChange={handleChange}
-                    options={categories}
-                    required
-                />
-                
-                {showGenderField && (
-                    <SelectInput
-                        label="نوع المنتج"
-                        name="gender"
-                        value={product.gender}
-                        onChange={handleChange}
-                        options={genderTypes}
-                        required
-                    />
-                )}
-                
-                <TextInput
-                    label="السعر الحالي"
-                    name="price"
-                    type="number"
-                    placeholder="50"
-                    value={product.price}
-                    onChange={handleChange}
-                    required
-                />
-                
-                <TextInput
-                    label="السعر القديم (اختياري)"
-                    name="oldPrice"
-                    type="number"
-                    placeholder="100"
-                    value={product.oldPrice}
-                    onChange={handleChange}
-                />
-
-                <TextInput
-                    label="الكمية المتاحة"
-                    name="quantity"
-                    type="number"
-                    placeholder="10"
-                    value={product.quantity}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                />
-                
-                <UploadImage
-                    name="image"
-                    id="image"
-                    setImage={setImage}
-                    required
-                />
-                
-                <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                        وصف المنتج
-                    </label>
-                    <textarea
-                        name="description"
-                        id="description"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        rows={4}
-                        value={product.description}
-                        placeholder="أكتب وصف المنتج"
-                        onChange={handleChange}
-                        required
-                    ></textarea>
-                </div>
-                
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                <div className="mt-6 text-center">
+                    <button 
+                        type='submit' 
+                        className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                         disabled={isLoading}
                     >
-                        {isLoading ? "جاري الإضافة..." : "إضافة المنتج"}
+                        {isLoading ? "جاري الإضافة..." : "إضافة فستان"}
                     </button>
                 </div>
             </form>

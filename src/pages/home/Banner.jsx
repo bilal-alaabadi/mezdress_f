@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import timings from "../../assets/Asset 18.png";
+import timings from "../../assets/fashionable-wedding-dress-collection-hanging-boutique-generated-by-ai.jpg";
 
 const Banner = () => {
     return (

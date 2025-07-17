@@ -6,10 +6,10 @@ import { logout } from '../../redux/features/auth/authSlice';
 
 const navItems = [
     { path: '/dashboard/admin', label: 'لوحة التحكم' },
-    { path: '/dashboard/add-product', label: 'أضافة منتج'  },
-    { path: '/dashboard/manage-products', label: 'تعديل المنتجات' },
-    { path: '/dashboard/users', label: 'المستخدمون'  },
-    { path: '/dashboard/manage-orders', label: 'أدارة الطلبات'  },
+    { path: '/dashboard/add-product', label: 'أضافة فستان'  },
+    { path: '/dashboard/manage-products', label: 'تعديل الفستان' },
+    // { path: '/dashboard/users', label: 'المستخدمون'  },
+    // { path: '/dashboard/manage-orders', label: 'أداره الطلبات'  },
 ]
 const AdminDashboard = () => {
     const [logoutUser] = useLogoutUserMutation();
@@ -30,8 +30,8 @@ const AdminDashboard = () => {
     <div className='space-y-5 bg-white p-8 md:h-screen flex flex-col justify-between'>
             <div>
                 <div className='nav__logo'>
-                    <Link to="/">LIGHT</Link>
-                    <p className='text-xs italic'>admin dashboard</p>
+                    <Link to="/">انتقل للصفحة الرئيسيه</Link>
+                    <p className='text-xs italic'>لوحة تحكم المشرف</p>
                 </div>
                 <hr className='mt-5' />
                 <ul className='space-y-5 pt-5'>
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
                 <hr  className='mb-3'/>
                 <button 
                 onClick={handleLogout}
-                className='text-white bg-[#CEAE7A] font-medium px-5 py-1 rounded-sm'>تسجيل خروج</button>
+                className='text-white bg-primary font-medium px-5 py-1 rounded-sm'>تسجيل الخوج</button>
             </div>
         </div>
   )

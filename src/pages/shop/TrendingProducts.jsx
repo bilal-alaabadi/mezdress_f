@@ -6,10 +6,14 @@ import { useFetchAllProductsQuery } from '../../redux/features/products/products
 const TrendingProducts = () => {
     const [visibleProducts, setVisibleProducts] = useState(4);
 
-    const { data: { products = [] } = {}, error, isLoading } = useFetchAllProductsQuery({
+    // جلب البيانات من الخادم
+    const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery({
         category: '',
+        color: '',
+        minPrice: '',
+        maxPrice: '',
         page: 1,
-        limit: 20,
+        limit: 20, // يمكن تغيير الحد الأقصى حسب الحاجة
     });
 
     const loadMoreProducts = () => {
@@ -25,48 +29,26 @@ const TrendingProducts = () => {
     }
 
     return (
-        <section className="section__container product__container">
-            <h2 className="section__header text-3xl font-bold text-[#CEAE7A] mb-4">
-                احدث المنتجات
+        <section className="section__container product__container" >
+            <h2 className="section__header text-3xl font-bold text-gray-800 mb-4">
+             الفساتين
             </h2>
-            <p className="section__subheader text-lg text-gray-900 mb-12" dir='rtl'>
-                أصالة تليق بك، بروح عصرية لا تشبه سواك.
-            </p>
 
+
+            {/* Product Cards */}
             <div className="mt-12" dir='rtl'>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     {products.slice(0, visibleProducts).map((product) => (
-                        <div key={product._id} className="product__card group relative">
-                            {product.oldPrice && (
-                                <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                                    خصم {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
-                                </div>
-                            )}
-                            
-                            {/* مؤشر الكمية المتبقية */}
-                            <div className="absolute top-3 right-3 z-10">
-                                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                    product.quantity <= 0 
-                                        ? 'bg-red-100 text-red-800'
-                                        : product.quantity <= 5 
-                                            ? 'bg-amber-100 text-amber-800'
-                                            : 'bg-green-100 text-green-800'
-                                }`}>
-                                    الكمية: {product.quantity}
-                                </span>
-                            </div>
-
+                        <div key={product._id} className="product__card">
                             <div className="relative">
                                 <Link to={`/shop/${product._id}`}>
-                                    <div className="aspect-square overflow-hidden">
+                                    <div className="aspect-square overflow-hidden"> {/* تحديد نسبة العرض إلى الارتفاع */}
                                         <img
-                                            src={product.image[0]}
+                                            src={product.image[0]} // عرض الصورة الأولى من المصفوفة
                                             alt="product image"
-                                            className={`w-full h-full object-cover hover:scale-105 transition-all duration-300 ${
-                                                product.quantity <= 0 ? 'opacity-70' : ''
-                                            }`}
+                                            className="w-full h-full object-cover hover:scale-105 transition-all duration-300"
                                             onError={(e) => {
-                                                e.target.src = "https://via.placeholder.com/300";
+                                                e.target.src = "https://via.placeholder.com/300"; // صورة بديلة في حالة الخطأ
                                                 e.target.alt = "Image not found";
                                             }}
                                         />
@@ -74,38 +56,25 @@ const TrendingProducts = () => {
                                 </Link>
                             </div>
 
+                            {/* Product Description */}
                             <div className="product__card__content text-center mt-4">
                                 <h4 className="text-lg font-semibold">{product.name}</h4>
-                                <div className="flex justify-center items-center gap-2 mt-2">
-                                    <p className={`font-medium ${
-                                        product.quantity <= 0 ? 'text-gray-400' : 'text-[#CEAE7A]'
-                                    }`}>
-                                        {product.price} ر.ع
-                                    </p>
-                                    {product.oldPrice && (
-                                        <p className="text-gray-400 text-sm line-through">
-                                            {product.oldPrice} ر.ع
-                                        </p>
-                                    )}
-                                </div>
                                 
-                               
+                                {/* <RatingStars rating={product.rating} /> */}
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {visibleProducts < products.length && (
-                <div className="text-center mt-8" dir='rtl'>
-                    <button
-                        onClick={loadMoreProducts}
-                        className="bg-[#CEAE7A] hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-full transition-all duration-300 shadow-md"
-                    >
+            {/* Load More Products Button */}
+            <div className="product__btn text-center mt-8" dir='rtl'>
+                {visibleProducts < products.length && (
+                    <button className="btn bg-primary text-white px-6 py-2 rounded-md" onClick={loadMoreProducts}>
                         عرض المزيد
                     </button>
-                </div>
-            )}
+                )}
+            </div>
         </section>
     );
 };
